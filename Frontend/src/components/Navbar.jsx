@@ -115,7 +115,7 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2"
                   >
-                    <User size={14} /> My Account
+                    <User size={14} /> {user.role === "admin" ? "Admin Profile" : "My Account"}
                   </Link>
                   <Link
                     to="/wishlist"
@@ -225,7 +225,7 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-white flex items-center gap-2 px-1 py-2"
                 >
-                  <User size={15} /> My Account
+                  <User size={15} /> {user.role === "admin" ? "Admin Profile" : "My Account"}
                 </Link>
                 <Link
                   to="/wishlist"
