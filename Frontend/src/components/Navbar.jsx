@@ -111,7 +111,7 @@ export default function Navbar() {
                     </Link>
                   )}
                   <Link
-                    to="/account"
+                    to={user.role === "admin" ? "/account/profile" : "/account"}
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2"
                   >
@@ -221,7 +221,7 @@ export default function Navbar() {
                   </Link>
                 )}
                 <Link
-                  to="/account"
+                  to={user.role === "admin" ? "/account/profile" : "/account"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-white flex items-center gap-2 px-1 py-2"
                 >
