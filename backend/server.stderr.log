@@ -1,0 +1,269 @@
+(node:15536) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30110ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerError: E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }
+    at InsertOneOperation.handleOk (D:\backend\project\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:194:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    index: 0,
+    code: 11000,
+    errmsg: 'E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }',
+    keyPattern: { email: 1 },
+    keyValue: { email: 'admin@astrowala.local' }
+  },
+  index: 0,
+  code: 11000,
+  keyPattern: { email: 1 },
+  keyValue: { email: 'admin@astrowala.local' }
+}
+MongoServerError: E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }
+    at InsertOneOperation.handleOk (D:\backend\project\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:194:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    index: 0,
+    code: 11000,
+    errmsg: 'E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }',
+    keyPattern: { email: 1 },
+    keyValue: { email: 'admin@astrowala.local' }
+  },
+  index: 0,
+  code: 11000,
+  keyPattern: { email: 1 },
+  keyValue: { email: 'admin@astrowala.local' }
+}
+MongoServerError: E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }
+    at InsertOneOperation.handleOk (D:\backend\project\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:194:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async Collection.insertOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (D:\backend\project\backend\node_modules\mongoose\lib\model.js:434:16)
+    at async maybeTracedSave (D:\backend\project\backend\node_modules\mongoose\lib\model.js:675:7)
+    at async model.create (D:\backend\project\backend\node_modules\mongoose\lib\model.js:2763:5)
+    at async CreateUser (file:///D:/backend/project/backend/src/controller/auth.controller.js:201:18) {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    index: 0,
+    code: 11000,
+    errmsg: 'E11000 duplicate key error collection: E-commerce.userauthenticationmodels index: email_1 dup key: { email: "admin@astrowala.local" }',
+    keyPattern: { email: 1 },
+    keyValue: { email: 'admin@astrowala.local' }
+  },
+  index: 0,
+  code: 11000,
+  keyPattern: { email: 1 },
+  keyValue: { email: 'admin@astrowala.local' }
+}
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:22084) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at parse (D:\backend\project\backend\node_modules\body-parser\lib\types\json.js:91:21)
+    at D:\backend\project\backend\node_modules\body-parser\lib\read.js:162:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:228:14)
+    at invokeCallback (D:\backend\project\backend\node_modules\raw-body\index.js:238:16)
+    at done (D:\backend\project\backend\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (D:\backend\project\backend\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:508:28)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)

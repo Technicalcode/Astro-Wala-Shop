@@ -1,0 +1,1047 @@
+◇ injected env (18) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+✅ Supabase client created
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+✅ MongoDB Connected
+Server is running on port 3000
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async Collection.findOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:313:24)
+    at async model.Query._findOne (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2773:15)
+    at async maybeTracedQueryExec (D:\backend\project\backend\node_modules\mongoose\lib\query.js:4801:65) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async Collection.findOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:313:24)
+    at async model.Query._findOne (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2773:15)
+    at async maybeTracedQueryExec (D:\backend\project\backend\node_modules\mongoose\lib\query.js:4801:65) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async Collection.findOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:313:24)
+    at async model.Query._findOne (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2773:15)
+    at async maybeTracedQueryExec (D:\backend\project\backend\node_modules\mongoose\lib\query.js:4801:65) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async Collection.findOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:313:24)
+    at async model.Query._findOne (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2773:15)
+    at async maybeTracedQueryExec (D:\backend\project\backend\node_modules\mongoose\lib\query.js:4801:65) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30096ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:260:22)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:260:22)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:260:22)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async [Symbol.asyncIterator] (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:254:34)
+    at async FindCursor.toArray (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:406:26)
+    at async model.Query._find (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2475:14) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30357ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+MongoServerSelectionError: read ECONNRESET
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:260:22)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async [Symbol.asyncIterator] (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:254:34)
+    at async FindCursor.toArray (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:406:26)
+    at async model.Query._find (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2475:14) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: read ECONNRESET
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:314:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: read ECONNRESET
+        at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+      errno: -4077,
+      code: 'ECONNRESET',
+      syscall: 'read'
+    }
+  }
+}
+MongoServerSelectionError: read ECONNRESET
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: read ECONNRESET
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:314:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: read ECONNRESET
+        at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+      errno: -4077,
+      code: 'ECONNRESET',
+      syscall: 'read'
+    }
+  }
+}
+MongoServerSelectionError: read ECONNRESET
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: read ECONNRESET
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:314:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: read ECONNRESET
+        at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+      errno: -4077,
+      code: 'ECONNRESET',
+      syscall: 'read'
+    }
+  }
+}
+MongoServerSelectionError: read ECONNRESET
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: read ECONNRESET
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:314:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: read ECONNRESET
+        at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+      errno: -4077,
+      code: 'ECONNRESET',
+      syscall: 'read'
+    }
+  }
+}
+MongoServerSelectionError: read ECONNRESET
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async [Symbol.asyncIterator] (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:254:34)
+    at async FindCursor.toArray (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:406:26)
+    at async model.Query._find (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2475:14) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkError: read ECONNRESET
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:314:44)
+      at Object.onceWrapper (node:events:623:26)
+      at TLSSocket.emit (node:events:508:28)
+      at emitErrorNT (node:internal/streams/destroy:170:8)
+      at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },
+    beforeHandshake: false,
+    [cause]: Error: read ECONNRESET
+        at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+      errno: -4077,
+      code: 'ECONNRESET',
+      syscall: 'read'
+    }
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+DB Error: MongoServerSelectionError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+    at Topology.selectServer (D:\backend\project\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:157:18)
+    at async executeOperation (D:\backend\project\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (D:\backend\project\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (D:\backend\project\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async Collection.findOne (D:\backend\project\backend\node_modules\mongodb\lib\collection.js:313:24)
+    at async model.Query._findOne (D:\backend\project\backend\node_modules\mongoose\lib\query.js:2773:15)
+    at async maybeTracedQueryExec (D:\backend\project\backend\node_modules\mongoose\lib\query.js:4801:65) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'ReplicaSetNoPrimary',
+    servers: Map(3) {
+      'ac-1oimfhq-shard-00-00.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-01.eq90pwy.mongodb.net:27017' => [ServerDescription],
+      'ac-1oimfhq-shard-00-02.eq90pwy.mongodb.net:27017' => [ServerDescription]
+    },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: 'atlas-hk4rcp-shard-0',
+    maxElectionId: new ObjectId('7fffffff000000000000013a'),
+    maxSetVersion: 326,
+    commonWireVersion: 25,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  [cause]: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 30444ms (connectTimeoutMS: 30000)
+      at TLSSocket.<anonymous> (D:\backend\project\backend\node_modules\mongodb\lib\cmap\connect.js:316:20)
+      at Object.onceWrapper (node:events:622:28)
+      at TLSSocket.emit (node:events:508:28)
+      at Socket._onTimeout (node:net:604:8)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    errorLabelSet: Set(4) {
+      'SystemOverloadedError',
+      'RetryableError',
+      'ResetPool',
+      'InterruptInUseConnections'
+    },
+    beforeHandshake: false,
+    [cause]: undefined
+  }
+}
+http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d
+http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d</p>
+  </body>
+</html>
+
+✅ Email sent successfully
+http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=f06f2eb343d97f01c813291d85ad5c1f14700bda56f613020d650ca0bdd47f957dc1e9ab9573d2e4ed09c06a802acc960bad6874458ccedaad5935734be30d9d</p>
+  </body>
+</html>
+
+◇ injected env (18) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+✅ Supabase client created
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+✅ MongoDB Connected
+Server is running on port 3000
+http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc
+http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc</p>
+  </body>
+</html>
+
+✅ Email sent successfully
+http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=9330bc63e1ef6ae1e5262d4de08cc0bb351bbcc78caf58e690ea295ed9c4e61b788b2bab3485e626cc60308b880c5e741378f4d2f2e934f17de719a73d1a4bcc</p>
+  </body>
+</html>
+
+http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe
+http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe</p>
+  </body>
+</html>
+
+✅ Email sent successfully
+http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=f1cef77740856d4aa9c2a50d15a0758a41f3817982308da44545574c20bad223779c7494c12f5cabd2fad6a3cd87d1c70a5356de6817b28da26ed710b598bbfe</p>
+  </body>
+</html>
+
+http://localhost:3000/?token=2eb003d0ac43bd36cce4656ce32d2ff4534c2e3fbf8ce065d500abf35bd4c65637cc59d21bba0ae25d31b1e3890e0e9d207965359bb8b89b5da7311a0cef7622
+http://localhost:3000/?token=2eb003d0ac43bd36cce4656ce32d2ff4534c2e3fbf8ce065d500abf35bd4c65637cc59d21bba0ae25d31b1e3890e0e9d207965359bb8b89b5da7311a0cef7622
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Click the button below to verify your email.</p>
+
+    <a
+      href="http://localhost:3000/?token=2eb003d0ac43bd36cce4656ce32d2ff4534c2e3fbf8ce065d500abf35bd4c65637cc59d21bba0ae25d31b1e3890e0e9d207965359bb8b89b5da7311a0cef7622"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>http://localhost:3000/?token=2eb003d0ac43bd36cce4656ce32d2ff4534c2e3fbf8ce065d500abf35bd4c65637cc59d21bba0ae25d31b1e3890e0e9d207965359bb8b89b5da7311a0cef7622</p>
+  </body>
+</html>
+
+Error: No recipients defined
+    at SMTPConnection._formatError (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:905:19)
+    at SMTPConnection._setEnvelope (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:1153:34)
+    at SMTPConnection.send (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:719:14)
+    at sendMessage (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-transport\index.js:233:28)
+    at D:\backend\project\backend\node_modules\nodemailer\lib\smtp-transport\index.js:290:25
+    at SMTPConnection._actionAUTHComplete (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:1740:9)
+    at SMTPConnection.<anonymous> (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:644:26)
+    at SMTPConnection._processResponse (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:1099:20)
+    at SMTPConnection._onData (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:865:14)
+    at SMTPConnection._onSocketData (D:\backend\project\backend\node_modules\nodemailer\lib\smtp-connection\index.js:224:44) {
+  code: 'EENVELOPE',
+  command: 'API'
+}

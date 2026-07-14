@@ -1,0 +1,129 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBanners, selectBannerSlides } from "../store/bannerSlice";
+import Editable from "./editable/Editable";
+
+export default function BannerCarousel() {
+  const dispatch = useDispatch();
+  const [index, setIndex] = useState(0);
+  const slides = useSelector(selectBannerSlides);
+
+  useEffect(() => {
+    dispatch(fetchBanners());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % slides.length), 5000);
+    return () => clearInterval(t);
+  }, [slides.length]);
+
+  useEffect(() => {
+    if (index >= slides.length) setIndex(0);
+  }, [index, slides.length]);
+
+  const slide = slides[index] || slides[0];
+
+  const getAlignmentClasses = (align) => {
+    switch (align) {
+      case "top-left": return "justify-start items-start pt-6 sm:pt-10 pl-6 sm:pl-10 text-left";
+      case "top-center": return "justify-start items-center pt-6 sm:pt-10 text-center";
+      case "top-right": return "justify-start items-end pt-6 sm:pt-10 pr-6 sm:pr-10 text-right";
+      case "center-left": return "justify-center items-start pl-6 sm:pl-10 text-left";
+      case "center": return "justify-center items-center text-center";
+      case "center-right": return "justify-center items-end pr-6 sm:pr-10 text-right";
+      case "bottom-left": return "justify-end items-start pb-6 sm:pb-10 pl-6 sm:pl-10 text-left";
+      case "bottom-right": return "justify-end items-end pb-6 sm:pb-10 pr-6 sm:pr-10 text-right";
+      case "bottom-center":
+      default:
+        return "justify-end items-center pb-6 sm:pb-10 text-center";
+    }
+  };
+
+  return (
+    <div
+      className={`relative rounded-md overflow-hidden h-48 sm:h-64 md:h-80 lg:h-[400px] flex flex-col group ${getAlignmentClasses(slide?.alignment)}`}
+    >
+      <div 
+        className="absolute inset-0 bg-cover bg-top transition-transform duration-[10000ms] ease-linear group-hover:scale-110" 
+        style={{ backgroundImage: slide.bg }} 
+      />
+      {/* Removed dark overlay so the baked-in text shines clearly */}
+      <div 
+        className="absolute inset-0 bg-black transition-opacity duration-300" 
+        style={{ opacity: (slide?.overlayOpacity || 0) / 100 }} 
+      />
+      <div className={`relative z-10 w-full flex flex-col ${slide?.alignment?.includes('left') ? 'items-start' : slide?.alignment?.includes('right') ? 'items-end' : 'items-center'}`}>
+        {slide?.title && (
+          <Editable
+            as="h2"
+            group="banner-title"
+            label="Banner Slide Title"
+            className="font-display font-bold text-2xl md:text-4xl mb-2 drop-shadow-md"
+            style={{ color: slide.titleColor || "#ffffff" }}
+          >
+            {slide.title}
+          </Editable>
+        )}
+        {slide?.subtitle && (
+          <Editable
+            as="p"
+            group="banner-subtitle"
+            label="Banner Slide Subtitle"
+            className="text-sm md:text-base mb-4 drop-shadow-md"
+            style={{ color: slide.subtitleColor || "#f3f4f6" }}
+          >
+            {slide.subtitle}
+          </Editable>
+        )}
+        {slide?.cta && (
+          <Editable
+            as={Link}
+            to={slide.to || "/"}
+            kind="button"
+            group="banner-cta"
+            label="Banner CTA Button"
+            className="inline-block text-xs sm:text-base font-bold px-5 py-2 sm:px-8 sm:py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+            style={{ backgroundColor: slide.ctaBg || "#ffffff", color: slide.ctaText || "#000000" }}
+          >
+            {slide.cta}
+          </Editable>
+        )}
+      </div>
+
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full p-1.5 z-10"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => setIndex((i) => (i + 1) % slides.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full p-1.5 z-10"
+            aria-label="Next slide"
+          >
+            <ChevronRight size={18} />
+          </button>
+
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => setIndex(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

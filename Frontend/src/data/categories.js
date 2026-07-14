@@ -1,0 +1,68 @@
+export const categories = [
+  {
+    id: "gemstones",
+    name: "Gemstones",
+    tagline: "Certified Ratna",
+    icon: "Gem",
+    color: "#7B2D6E",
+    image: "https://images.unsplash.com/photo-1613843351058-1dd06fda7c02?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "rudraksha",
+    name: "Rudraksha",
+    tagline: "1 Mukhi – 21 Mukhi",
+    icon: "CircleDot",
+    color: "#5C4326",
+    image: "https://images.unsplash.com/photo-1562960364-f47d48567cf0?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "yantras",
+    name: "Yantras & Idols",
+    tagline: "Energised Brass",
+    icon: "Sparkles",
+    color: "#A8782E",
+    image: "https://images.unsplash.com/photo-1662720868850-e60cefb03201?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "pooja",
+    name: "Pooja Samagri",
+    tagline: "Daily & Festive",
+    icon: "Flame",
+    color: "#8C3B1E",
+    image: "https://images.unsplash.com/photo-1635192592106-77a5aacbe1a3?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "bracelets",
+    name: "Bracelets & Malas",
+    tagline: "Chakra Healing",
+    icon: "CircleDashed",
+    color: "#3B5C8C",
+    image: "https://images.unsplash.com/photo-1601888238880-267580743a6d?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "vastu",
+    name: "Vastu & Fengshui",
+    tagline: "Home & Office",
+    icon: "Compass",
+    color: "#2E6B5C",
+    image: "https://images.unsplash.com/photo-1544592218-b546f7b9ddb4?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "reports",
+    name: "Reports",
+    tagline: "Kundli & Match",
+    icon: "ScrollText",
+    color: "#1A4B8C",
+    image: "https://images.unsplash.com/photo-1736117703315-d3dc5582cfb7?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "consultation",
+    name: "Astrologers",
+    tagline: "Live Sessions",
+    icon: "Phone",
+    color: "#6B1E3C",
+    image: "https://images.unsplash.com/photo-1618022325802-7e5e732d97a1?auto=format&fit=crop&w=200&q=80",
+  },
+];
+
+export const getCategoryById = (id) => categories.find((c) => c.id === id);
