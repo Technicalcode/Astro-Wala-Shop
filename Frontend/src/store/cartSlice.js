@@ -363,6 +363,13 @@ const cartSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    clearCartSession: (state) => {
+      state.items = [];
+      state.appliedCoupon = null;
+      state.loading = false;
+      state.error = null;
+      saveToStorage([]);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -439,7 +446,7 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeCoupon, resetCartSession } = cartSlice.actions;
+export const { removeCoupon, resetCartSession, clearCartSession } = cartSlice.actions;
 
 export const selectCartItems = (state) => state.cart.items;
 export const selectAppliedCoupon = (state) => state.cart.appliedCoupon;

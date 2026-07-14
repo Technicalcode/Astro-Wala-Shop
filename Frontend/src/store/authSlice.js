@@ -6,7 +6,8 @@ import {
 	readApiResponse,
 	trackedFetch,
 } from "../config/api";
-import { resetCartSession } from "./cartSlice";
+import { clearCartSession } from "./cartSlice";
+import { clearWishlist } from "./wishlistSlice";
 
 const USERS_KEY = "astromart_users";
 const SESSION_KEY = "astromart_session";
@@ -279,7 +280,8 @@ export const logout = () => (dispatch) => {
 
 	localStorage.removeItem(LOGIN_ACTIVITY_KEY);
 	dispatch(logoutUser());
-	dispatch(resetCartSession());
+	dispatch(clearCartSession());
+	dispatch(clearWishlist());
 };
 
 export const syncUserProfile = () => async (dispatch, getState) => {
