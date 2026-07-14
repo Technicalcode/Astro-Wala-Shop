@@ -290,7 +290,8 @@ export const CreateUser = async (req, res) => {
 		}
 
 		// 7. Verification link
-		const verificationLink = `http://localhost:5000/auth/verify-email?token=${token}`;
+		const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+		const verificationLink = `${frontendUrl}/auth/verify-email?token=${token}`;
 
 		// 8. Send verification email
 		// await sendEmail(Email, token);
