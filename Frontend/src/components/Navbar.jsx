@@ -101,7 +101,7 @@ export default function Navbar() {
 
               {menuOpen && user && (
                 <div className="absolute right-0 mt-2 w-52 bg-white rounded shadow-xl border border-gray-100 py-1 text-sm z-50">
-                  {user.role === "admin" ? (
+                  {user.role === "admin" && (
                     <Link
                       to="/admin"
                       onClick={() => setMenuOpen(false)}
@@ -109,15 +109,14 @@ export default function Navbar() {
                     >
                       <Store size={14} /> Admin Dashboard
                     </Link>
-                  ) : (
-                    <Link
-                      to="/account"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 hover:bg-gray-50 text-gray-700"
-                    >
-                      My Account
-                    </Link>
                   )}
+                  <Link
+                    to="/account"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2"
+                  >
+                    <User size={14} /> My Account
+                  </Link>
                   <Link
                     to="/wishlist"
                     onClick={() => setMenuOpen(false)}
@@ -212,7 +211,7 @@ export default function Navbar() {
                 <Editable as="span" id="navbar-mobile-greeting" label="Mobile Menu Greeting" className="text-white/70 px-1 py-1.5">
                   Hi, {userDisplayName}
                 </Editable>
-                {user.role === "admin" ? (
+                {user.role === "admin" && (
                   <Link
                     to="/admin"
                     onClick={() => setMobileMenuOpen(false)}
@@ -220,15 +219,14 @@ export default function Navbar() {
                   >
                     <Store size={15} /> Admin Dashboard
                   </Link>
-                ) : (
-                  <Link
-                    to="/account"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-white px-1 py-2"
-                  >
-                    My Account
-                  </Link>
                 )}
+                <Link
+                  to="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-white flex items-center gap-2 px-1 py-2"
+                >
+                  <User size={15} /> My Account
+                </Link>
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
