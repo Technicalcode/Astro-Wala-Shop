@@ -2,7 +2,7 @@ import { withNetworkActivity } from "../utils/networkActivity";
 import { showErrorPopup } from "../utils/notificationCenter";
 
 export const backendUrl =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  import.meta.env.VITE_BACKEND_URL || "https://astro-wala-shop-backend.onrender.com";
 
 export const COMMON_CLOUDINARY_IMAGE_URL =
   "https://res.cloudinary.com/dbi2izwfz/image/upload/v1783702104/astro-categories/deee84e421bc603a693426a67ad795dc.webp";
