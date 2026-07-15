@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { showErrorPopup } from "../utils/notificationCenter";
 import { parseColor, getContrastRatio, getContrastingColor } from "../utils/colorUtils";
-import { backendUrl, getStoredAccessToken } from "../config/api";
-import axios from "axios";
+import { backendUrl, getStoredAccessToken, trackedFetch, readApiResponse } from "../config/api";
 
 const STYLES_KEY = "astromart_editable_styles_v1";
 
@@ -30,11 +29,14 @@ const debouncedSaveToDB = (styles) => {
     try {
       const token = getStoredAccessToken();
       if (!token) return; // Only admin can save
-      await axios.put(
-        `${backendUrl}/api/v1/theme/editable-styles`,
-        { styles: plainStyles },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await fetch(`${backendUrl}/api/v1/theme/editable-styles`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ styles: plainStyles }),
+      });
     } catch (err) {
       console.error("Failed to sync styles to DB", err);
     }
@@ -50,9 +52,12 @@ export const fetchEditableStyles = createAsyncThunk(
   "editableStyle/fetchStyles",
   async (_, { dispatch }) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/v1/theme/editable-styles`);
-      if (response.data && response.data.styles) {
-        dispatch(setStyles(response.data.styles));
+      const response = await trackedFetch(`${backendUrl}/api/v1/theme/editable-styles`);
+      if (response.ok) {
+        const data = await readApiResponse(response);
+        if (data && data.styles) {
+          dispatch(setStyles(data.styles));
+        }
       }
     } catch (error) {
       console.error("Error fetching styles from DB:", error);
