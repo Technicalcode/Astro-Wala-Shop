@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Link, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, FileText, MonitorSmartphone, Palette, TrendingUp, Eye } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, FileText, MonitorSmartphone, Palette, TrendingUp, Eye, ChevronDown } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserDisplayName, selectUser, logout } from "../../store/authSlice";
 import { selectEditMode, toggleEditMode } from "../../store/editableStyleSlice";
@@ -57,6 +57,58 @@ const navGroups = [
   }
 ];
 
+const NavGroup = ({ group, groupIdx, setSidebarOpen }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  
+  return (
+    <div key={groupIdx} className="mb-1">
+      <div 
+        className="flex items-center justify-between cursor-pointer group/title mb-2 ml-2 pr-2 py-1"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h3 className="text-xs font-semibold text-white/70 uppercase tracking-widest group-hover/title:text-white transition-colors">
+          {group.title}
+        </h3>
+        <ChevronDown 
+          size={16} 
+          className={`text-white/50 group-hover/title:text-white transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} 
+        />
+      </div>
+      <div className={`flex flex-col gap-1.5 overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100 mb-2' : 'max-h-0 opacity-0 mb-0'}`}>
+        {group.items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden ${
+                isActive 
+                  ? "bg-white/10 text-white shadow-md border border-white/5" 
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-gradient-to-b from-amber-300 to-amber-500 rounded-r-md shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                )}
+                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? 'bg-amber-400/20 text-amber-300 scale-110' : 'bg-transparent text-white/50 group-hover:text-amber-200 group-hover:scale-110'}`}>
+                  <item.icon size={16} />
+                </div>
+                <Editable as="span" group="admin-nav-link" kind="button" label="Admin Nav Link Text" className="flex-1">
+                  {item.label}
+                </Editable>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function AdminLayout() {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
@@ -109,42 +161,7 @@ export default function AdminLayout() {
         className="flex-1 px-4 py-6 flex flex-col gap-6 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
       >
         {navGroups.map((group, groupIdx) => (
-          <div key={groupIdx}>
-            <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3 ml-2">
-              {group.title}
-            </h3>
-            <div className="flex flex-col gap-1.5">
-              {group.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  onClick={() => setSidebarOpen(false)}
-                  className={({ isActive }) =>
-                    `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden ${
-                      isActive 
-                        ? "bg-white/10 text-white shadow-md border border-white/5" 
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-gradient-to-b from-amber-300 to-amber-500 rounded-r-md shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
-                      )}
-                      <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? 'bg-amber-400/20 text-amber-300 scale-110' : 'bg-transparent text-white/50 group-hover:text-amber-200 group-hover:scale-110'}`}>
-                        <item.icon size={16} />
-                      </div>
-                      <Editable as="span" group="admin-nav-link" kind="button" label="Admin Nav Link Text" className="flex-1">
-                        {item.label}
-                      </Editable>
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </div>
-          </div>
+          <NavGroup key={groupIdx} group={group} groupIdx={groupIdx} setSidebarOpen={setSidebarOpen} />
         ))}
       </Editable>
 
@@ -154,7 +171,7 @@ export default function AdminLayout() {
         kind="button"
         id="admin-sidebar-footer"
         label="Admin Sidebar Footer Background"
-        className="p-3 border-t border-white/10"
+        className="p-4 pb-8 border-t border-white/10"
       >
         <Editable
           as="p"
@@ -179,14 +196,14 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-canvas">
+    <div className="h-screen w-full flex bg-canvas overflow-hidden">
       {/* Desktop sidebar */}
       <Editable
         as="aside"
         kind="button"
         id="admin-sidebar-bg"
         label="Admin Sidebar Background"
-        className="hidden md:flex w-64 bg-gradient-to-b from-brand-dark via-indigo-950 to-slate-900 text-white flex-col shrink-0 border-r border-white/5 shadow-2xl relative z-30"
+        className="hidden md:flex w-64 bg-brand text-white flex-col shrink-0 border-r border-white/5 shadow-2xl relative z-30 sticky top-0 h-screen"
       >
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
         <div className="relative z-10 flex flex-col h-full">
@@ -198,7 +215,7 @@ export default function AdminLayout() {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative w-72 max-w-[80vw] bg-gradient-to-b from-brand-dark via-indigo-950 to-slate-900 text-white flex flex-col h-full shadow-2xl">
+          <aside className="relative w-72 max-w-[80vw] bg-brand text-white flex flex-col h-full shadow-2xl">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col h-full">
               {SidebarContent}
@@ -207,7 +224,7 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
         {/* Mobile top bar */}
         <Editable
           as="div"
@@ -232,17 +249,18 @@ export default function AdminLayout() {
         </Editable>
 
         {/* ── Edit Mode Toggle ── */}
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-[0_4px_12px_-10px_rgba(0,0,0,0.1)] px-5 py-3 sticky top-0 z-20"
+        <div className="sticky top-4 z-20 px-4 md:px-6 pb-2">
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 bg-brand shadow-lg rounded-2xl px-6 py-3 border border-white/5"
           onDoubleClick={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className={`p-1.5 rounded-lg ${editMode ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'} transition-colors`}>
+              <div className={`p-1.5 rounded-lg ${editMode ? 'bg-amber-900/40 text-amber-400' : 'bg-white/10 text-white/50'} transition-colors`}>
                 <Pencil size={15} />
               </div>
-              <span className={`text-sm font-bold ${editMode ? 'text-amber-700' : 'text-gray-600'} transition-colors`}>Edit Mode</span>
+              <span className={`text-sm font-bold ${editMode ? 'text-amber-400' : 'text-white/70'} transition-colors`}>Edit Mode</span>
             </div>
             
             <label className="relative inline-flex items-center cursor-pointer">
@@ -253,12 +271,12 @@ export default function AdminLayout() {
                 className="sr-only peer"
                 aria-label="Toggle element color edit mode"
               />
-              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-500 transition-all shadow-inner" />
-              <div className="absolute left-[2px] top-[2px] w-5 h-5 bg-white rounded-full shadow-md transition-all peer-checked:translate-x-5" />
+              <div className="w-11 h-6 bg-white/20 rounded-full peer peer-checked:bg-amber-500 transition-all shadow-inner" />
+              <div className="absolute left-[2px] top-[2px] w-5 h-5 bg-white rounded-full shadow-sm transition-all peer-checked:translate-x-5" />
             </label>
             
             {editMode && (
-              <span className="text-xs font-medium text-amber-600/80 hidden md:inline-block ml-2 animate-pulse">
+              <span className="text-xs font-medium text-amber-400/80 hidden md:inline-block ml-2 animate-pulse">
                 Double-click highlighted elements to edit styles
               </span>
             )}
@@ -270,13 +288,14 @@ export default function AdminLayout() {
             kind="button"
             id="admin-visit-store-btn"
             label="Visit Store Button"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-gray-700 bg-white border border-gray-200 hover:border-brand hover:text-brand transition-all shadow-sm hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white bg-white/10 border border-white/10 hover:bg-white/20 hover:text-amber-300 transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <Home size={15} />
             <Editable as="span" id="admin-visit-store-text" kind="button" label="Visit Store Text">
               Visit Store
             </Editable>
           </Editable>
+          </div>
         </div>
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto overflow-x-hidden">

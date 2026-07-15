@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { ShieldCheck, Truck, RotateCcw, ChevronRight, Check, Lock, Star, MapPin, Loader2 } from "lucide-react";
+import { ShieldCheck, Truck, RotateCcw, ChevronRight, Check, Lock, Star, MapPin, Loader2, Heart, Share2, MessageCircle, Link2 } from "lucide-react";
 import { selectProductById, selectProductsByCategory, selectProductsLoading } from "../store/productsSlice";
 import { selectCategoryById } from "../store/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,7 @@ import ProductCard from "../components/ProductCard";
 import Editable from "../components/editable/Editable";
 import StickyCartBar from "../components/StickyCartBar";
 import RecentlyViewedRail from "../components/RecentlyViewedRail";
+import WishlistButton from "../components/WishlistButton";
 import { trackProduct } from "../store/recentlyViewedSlice";
 import { getCheckoutNavigationState } from "../utils/checkoutAddress";
 import PageLoadingState from "../components/PageLoadingState";
@@ -55,6 +56,8 @@ export default function ProductDetail() {
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
   const [reviewNotice, setReviewNotice] = useState("");
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
   const sentinelRef = useRef(null);
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -129,6 +132,22 @@ export default function ProductDetail() {
   const related = categoryProducts.filter((p) => p.id !== product.id).slice(0, 4);
 
   const requireLogin = () => navigate("/login", { state: { from: location.pathname } });
+
+  const handleShareWhatsApp = () => {
+    const url = window.location.href;
+    const text = `Check out ${product.name} on Astro Wala Shop!\n\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    setShowShareMenu(false);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+      setShowShareMenu(false);
+    }, 2000);
+  };
 
   const handleDeliveryCheck = async (event) => {
     event.preventDefault();
@@ -384,7 +403,38 @@ export default function ProductDetail() {
         </div>
 
         {/* ── Right: Product Info ── */}
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          
+          <div className="absolute top-0 right-0 flex items-center gap-1 sm:gap-2 z-10">
+            <WishlistButton 
+              product={product} 
+              className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-all"
+            />
+            <div className="relative">
+              <button 
+                className="p-2 text-gray-400 hover:bg-gray-100 hover:text-brand rounded-full transition-all group" 
+                title="Share"
+                onClick={() => setShowShareMenu(!showShareMenu)}
+              >
+                <Share2 size={20} className="transition-transform group-active:scale-95" />
+              </button>
+              
+              {showShareMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowShareMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-100 shadow-lg rounded-xl p-2 flex flex-col gap-1 z-20 w-40 animate-in fade-in zoom-in duration-200">
+                    <button onClick={handleShareWhatsApp} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors text-left w-full">
+                      <MessageCircle size={16} /> WhatsApp
+                    </button>
+                    <button onClick={handleCopyLink} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors text-left w-full">
+                      {copied ? <Check size={16} className="text-green-500" /> : <Link2 size={16} />} 
+                      {copied ? "Copied!" : "Copy Link"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
 
           {/* Brand */}
           <Editable as="p" id="pd-brand" kind="button" label="Brand Text"

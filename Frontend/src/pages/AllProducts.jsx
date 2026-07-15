@@ -48,10 +48,13 @@ export default function AllProducts() {
     return [...byId].map(([id, name]) => ({ id, name }));
   }, [allProducts, categoryOptions]);
 
-  const priceCeiling = useMemo(
-    () => Math.max(20000, ...allProducts.map((product) => Number(product.price) || 0)),
-    [allProducts],
-  );
+  const priceFloor = 0;
+
+  const priceCeiling = useMemo(() => {
+    if (!allProducts || allProducts.length === 0) return 1000;
+    const max = Math.max(...allProducts.map((product) => Number(product.price) || 0));
+    return max > priceFloor ? max : priceFloor + 1000;
+  }, [allProducts, priceFloor]);
 
   const filtered = useMemo(() => {
     let list = allProducts.filter(
@@ -160,22 +163,25 @@ export default function AllProducts() {
             <div className="px-2">
               <input
                 type="range"
-                min="0"
+                min={priceFloor}
                 max={priceCeiling}
                 step="100"
                 value={maxPrice ?? priceCeiling}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                onChange={(e) => {
+                  setMaxPrice(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
                 className="w-full accent-brand h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, #1A4B8C ${
-                    priceCeiling ? ((maxPrice ?? priceCeiling) / priceCeiling) * 100 : 100
+                    priceCeiling > priceFloor ? (((maxPrice ?? priceCeiling) - priceFloor) / (priceCeiling - priceFloor)) * 100 : 100
                   }%, #e5e7eb ${
-                    priceCeiling ? ((maxPrice ?? priceCeiling) / priceCeiling) * 100 : 100
+                    priceCeiling > priceFloor ? (((maxPrice ?? priceCeiling) - priceFloor) / (priceCeiling - priceFloor)) * 100 : 100
                   }%)`
                 }}
               />
               <div className="flex justify-between items-center mt-3">
-                <span className="text-xs text-gray-500 font-medium">₹0</span>
+                <span className="text-xs text-gray-500 font-medium">₹{priceFloor.toLocaleString("en-IN")}</span>
                 <Editable as="span" group="all-products-filters-text" kind="button" label="Filter Text" className="text-sm font-semibold text-brand bg-brand/10 px-3 py-1 rounded-full">
                   Up to ₹{(maxPrice ?? priceCeiling).toLocaleString("en-IN")}
                 </Editable>

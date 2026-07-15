@@ -47,11 +47,25 @@ export default function AdminAuditLogs() {
   const [action, setAction] = useState("all");
   const [moduleName, setModuleName] = useState("all");
 
+  const [timeFilter, setTimeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const totalPages = Math.ceil(logs.length / itemsPerPage) || 1;
-  const currentLogs = logs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const filteredByTime = useMemo(() => {
+    if (timeFilter === "all") return logs;
+    const now = new Date();
+    const limitDate = new Date();
+    
+    if (timeFilter === "1week") limitDate.setDate(now.getDate() - 7);
+    else if (timeFilter === "2week") limitDate.setDate(now.getDate() - 14);
+    else if (timeFilter === "3week") limitDate.setDate(now.getDate() - 21);
+    else if (timeFilter === "1month") limitDate.setMonth(now.getMonth() - 1);
+    
+    return logs.filter(log => new Date(log.createdAt) >= limitDate);
+  }, [logs, timeFilter]);
+
+  const totalPages = Math.ceil(filteredByTime.length / itemsPerPage) || 1;
+  const currentLogs = filteredByTime.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const actionOptions = useMemo(
     () => ["all", ...Array.from(new Set(logs.map((log) => log.action)))],
@@ -97,7 +111,7 @@ export default function AdminAuditLogs() {
       loadLogs();
     }, 400);
     return () => clearTimeout(timeoutId);
-  }, [search, action, moduleName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, action, moduleName, timeFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -123,7 +137,7 @@ export default function AdminAuditLogs() {
         <div className="absolute top-10 right-20 w-20 h-20 bg-amber-400/20 blur-2xl rounded-full pointer-events-none"></div>
       </div>
 
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 p-5 grid gap-4 lg:grid-cols-[1fr_200px_200px]">
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 p-5 grid gap-4 lg:grid-cols-[1fr_200px_200px_200px]">
         <form onSubmit={handleSearchSubmit} className="relative group">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand transition-colors" />
           <input
@@ -162,6 +176,23 @@ export default function AdminAuditLogs() {
                 {item === "all" ? "All modules" : item}
               </option>
             ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+          </div>
+        </div>
+
+        <div className="relative">
+          <select
+            value={timeFilter}
+            onChange={(event) => setTimeFilter(event.target.value)}
+            className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all hover:border-gray-300 font-medium text-gray-700"
+          >
+            <option value="all">All time</option>
+            <option value="1week">Last 1 week</option>
+            <option value="2week">Last 2 weeks</option>
+            <option value="3week">Last 3 weeks</option>
+            <option value="1month">Last 1 month</option>
           </select>
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
             <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>

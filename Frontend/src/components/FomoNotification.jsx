@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { fomoNames, fomoCities, fomoActions } from "../data/fomoData";
 import { useSelector } from "react-redux";
 import { selectAllProducts } from "../store/productsSlice";
+import { selectUser } from "../store/authSlice";
 
 const MIN_GAP_MS = 14000;
 const MAX_GAP_MS = 26000;
@@ -15,13 +16,14 @@ function randomItem(arr) {
 
 export default function FomoNotification() {
   const allProducts = useSelector(selectAllProducts);
+  const user = useSelector(selectUser);
   const [toast, setToast] = useState(null);
   const [dismissed, setDismissed] = useState(false);
   const hideTimer = useRef(null);
   const scheduleTimer = useRef(null);
 
   useEffect(() => {
-    if (dismissed || !allProducts.length) return;
+    if (dismissed || !allProducts.length || !user) return;
 
     const showRandomToast = () => {
       const product = randomItem(allProducts);
@@ -52,7 +54,7 @@ export default function FomoNotification() {
     };
   }, [allProducts, dismissed]);
 
-  if (!toast || dismissed) return null;
+  if (!toast || dismissed || !user) return null;
 
   return (
     <div className="fixed bottom-5 left-5 z-50 max-w-[300px] animate-[fadeInUp_0.3s_ease-out]">
