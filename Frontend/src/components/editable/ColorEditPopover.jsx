@@ -153,6 +153,13 @@ export default function ColorEditPopover() { // Force Vite reload
     showBelow = true;
   }
 
+  // Ensure it doesn't go off the bottom of the screen
+  if (showBelow && top + estimatedPopoverHeight > window.innerHeight - 10) {
+    top = window.innerHeight - estimatedPopoverHeight - 10;
+  } else if (!showBelow && top - estimatedPopoverHeight < 10) {
+    top = estimatedPopoverHeight + 10;
+  }
+
   let left = anchorRect.left + anchorRect.width / 2 - POPOVER_WIDTH / 2;
   if (left < 10) left = 10;
   if (left + POPOVER_WIDTH > window.innerWidth - 10) left = window.innerWidth - POPOVER_WIDTH - 10;
