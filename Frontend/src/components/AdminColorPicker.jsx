@@ -14,6 +14,7 @@ export default function AdminColorPicker() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [customHex, setCustomHex] = useState(bgColor || "");
+  const [showTooltip, setShowTooltip] = useState(true);
 
   useEffect(() => {
     if (bgColor) {
@@ -156,10 +157,16 @@ export default function AdminColorPicker() {
         </label>
       </div>
 
-      {editMode && (
-        <div className="fixed right-3 top-36 z-40 max-w-[230px] bg-white border border-amber-200 text-[11px] text-amber-800 rounded-xl shadow-md px-3 py-2 leading-relaxed">
-          Double-click any highlighted text or button to change its color. Turn this off when
-          you're done editing.
+      {editMode && showTooltip && (
+        <div className="fixed right-3 top-52 z-40 max-w-[230px] bg-white border border-amber-200 text-[11px] text-amber-800 rounded-xl shadow-md px-3 py-2 pr-6 leading-relaxed">
+          Double-click any highlighted text or button to edit. Turn this off when you're done.
+          <button 
+            onClick={() => setShowTooltip(false)}
+            className="absolute top-1.5 right-1.5 text-gray-400 hover:text-gray-700"
+            aria-label="Close tooltip"
+          >
+            <X size={12} />
+          </button>
         </div>
       )}
 
