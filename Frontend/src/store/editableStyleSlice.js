@@ -1,6 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { showErrorPopup } from "../utils/notificationCenter";
 import { parseColor, getContrastRatio, getContrastingColor } from "../utils/colorUtils";
+import { backendUrl } from "../config/api";
+import axios from "axios";
 
 const STYLES_KEY = "astromart_editable_styles_v1";
 
@@ -15,10 +17,43 @@ const loadStyles = () => {
 const saveStyles = (styles) => {
   try {
     localStorage.setItem(STYLES_KEY, JSON.stringify(styles));
+    debouncedSaveToDB(styles);
   } catch {
     /* ignore */
   }
 };
+
+let saveTimeout = null;
+const debouncedSaveToDB = (styles) => {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    try {
+      const token = localStorage.getItem("token") || localStorage.getItem("adminToken");
+      if (!token) return; // Only admin can save
+      await axios.put(
+        `${backendUrl}/api/v1/theme/editable-styles`,
+        { styles },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.error("Failed to sync styles to DB", err);
+    }
+  }, 1000);
+};
+
+export const fetchEditableStyles = createAsyncThunk(
+  "editableStyle/fetchStyles",
+  async (_, { dispatch }) => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/v1/theme/editable-styles`);
+      if (response.data && response.data.styles) {
+        dispatch(setStyles(response.data.styles));
+      }
+    } catch (error) {
+      console.error("Error fetching styles from DB:", error);
+    }
+  }
+);
 
 const editableStyleSlice = createSlice({
   name: "editableStyle",

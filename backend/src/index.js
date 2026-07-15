@@ -22,6 +22,7 @@ import paymentRoutes from "./router/payment.routes.js";
 import homepageRoutes from "./router/homepage.routes.js";
 import referralRoutes from "./router/referral.routes.js";
 import analyticsRoutes from "./router/analytics.routes.js";
+import themeRoutes from "./router/theme.routes.js";
 
 // import db from "./Database/db.js";
 
@@ -64,6 +65,7 @@ app.use("/api/v1/admin", admin);
 app.use("/api/v1/referral", referralRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/homepage", homepageRoutes);
+app.use("/api/v1/theme", themeRoutes);
 
 app.use((err, req, res, next) => {
 	if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

@@ -8,6 +8,7 @@ import { fetchProducts } from "./store/productsSlice";
 import { fetchCart } from "./store/cartSlice";
 import { fetchWishlist } from "./store/wishlistSlice";
 import { fetchAvailableCoupons } from "./store/couponSlice";
+import { fetchEditableStyles } from "./store/editableStyleSlice";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
@@ -92,6 +93,7 @@ export default function App() {
     dispatch(fetchCategories());
     dispatch(fetchProducts());
     dispatch(fetchThemeSettings());
+    dispatch(fetchEditableStyles());
   }, [dispatch]);
 
   useEffect(() => {
