@@ -79,12 +79,7 @@ export default function ForgotPassword() {
               label="Success Message"
               className="bg-green-50 text-green-800 p-4 rounded-md text-sm"
             >
-              If an account exists for <strong>{email}</strong>, we have sent a password reset link to it. 
-              <br/><br/>
-              <em>Demo tip: Click below to simulate resetting your password.</em>
-              <Link to="/reset-password?token=demo123" className="block mt-3 text-brand font-medium underline">
-                Simulate Reset Password
-              </Link>
+              If an account exists for <strong>{email}</strong>, we have sent a password reset link to it. Please check your inbox (and spam folder).
             </Editable>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
