@@ -11,6 +11,7 @@ import {
   setText,
   resetStyle,
 } from "../../store/editableStyleSlice";
+import { getContrastingColor } from "../../utils/colorUtils";
 
 // Controlled hex text input with Copy + Paste buttons
 function HexInput({ value, onChange }) {
@@ -210,13 +211,20 @@ export default function ColorEditPopover() { // Force Vite reload
           <input
             type="color"
             value={override.color || "#1f2a44"}
-            onChange={(e) => dispatch(setColor({ key, color: e.target.value, hasBackground }))}
+            onChange={(e) => {
+              const newColor = e.target.value;
+              dispatch(setColor({ key, color: newColor, hasBackground }));
+              dispatch(setBackground({ key, background: getContrastingColor(newColor) }));
+            }}
             onMouseDown={(e) => e.stopPropagation()}
             className="w-9 h-9 rounded-full border-2 border-gray-200 cursor-pointer shrink-0"
           />
           <HexInput
             value={override.color || "#1f2a44"}
-            onChange={(hex) => dispatch(setColor({ key, color: hex, hasBackground }))}
+            onChange={(hex) => {
+              dispatch(setColor({ key, color: hex, hasBackground }));
+              dispatch(setBackground({ key, background: getContrastingColor(hex) }));
+            }}
           />
         </div>
       )}
@@ -228,13 +236,20 @@ export default function ColorEditPopover() { // Force Vite reload
           <input
             type="color"
             value={override.background || "#ffffff"}
-            onChange={(e) => dispatch(setBackground({ key, background: e.target.value }))}
+            onChange={(e) => {
+              const newBg = e.target.value;
+              dispatch(setBackground({ key, background: newBg }));
+              dispatch(setColor({ key, color: getContrastingColor(newBg), hasBackground }));
+            }}
             onMouseDown={(e) => e.stopPropagation()}
             className="w-9 h-9 rounded-full border-2 border-gray-200 cursor-pointer shrink-0"
           />
           <HexInput
             value={override.background || "#ffffff"}
-            onChange={(hex) => dispatch(setBackground({ key, background: hex }))}
+            onChange={(hex) => {
+              dispatch(setBackground({ key, background: hex }));
+              dispatch(setColor({ key, color: getContrastingColor(hex), hasBackground }));
+            }}
           />
         </div>
       )}

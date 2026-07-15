@@ -113,7 +113,7 @@ export default function Editable({
       key: storageKey,
       textKey: id || storageKey,
       label: label || storageKey,
-      hasBackground: kind === "button",
+      hasBackground: true,
       hasText: kind === "button" || kind === "text",
       defaultText: typeof children === "string" ? children : "",
       anchorRect: e.currentTarget.getBoundingClientRect(),
