@@ -1,7 +1,5 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
 
 dotenv.config();
 
@@ -10,22 +8,48 @@ export const SendVerficationEmail = async (email, token) => {
     // Frontend URL
     const verificationLink = `${process.env.FRONTEND_URL}/?token=${token}`;
 
-    // Read HTML template
-    const templatePath = path.join(
-      process.cwd(),
-      "src",
-      "templates",
-      "emailTemplate.html",
-    );
-    console.log(verificationLink);
+    // Create HTML template directly to avoid Vercel filesystem issues
+    const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    "
+  >
+    <h2>Verify Your Email</h2>
 
-    let html = fs.readFileSync(templatePath, "utf8");
+    <p>Thank you for registering.</p>
 
-    // Replace placeholder
-    html = html.replace(/{{verificationLink}}/g, verificationLink);
+    <p>Click the button below to verify your email.</p>
 
-    console.log(verificationLink);
-    console.log(html);
+    <a
+      href="${verificationLink}"
+      style="
+        display: inline-block;
+        padding: 15px 30px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      "
+    >
+      Verify Email
+    </a>
+
+    <br /><br />
+
+    <p>If the button doesn't work, copy this link:</p>
+
+    <p>${verificationLink}</p>
+  </body>
+</html>`;
 
     // Create transporter
     const transporter = nodemailer.createTransport({

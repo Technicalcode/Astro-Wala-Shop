@@ -24,7 +24,7 @@ import supabase from "../Database/db.js";
 import sendEmail from "../utils/email.js";
 import UserModel from "../Model/User.model.js";
 import UserProfile from "../Model/userprofile.model.js";
-import { SendVerficationEmail } from "../utils/send-verfication-email";
+import { SendVerficationEmail } from "../utils/send-verfication-email.js";
 import {
 	CloseLoginActivity,
 	CreateLoginActivity,
