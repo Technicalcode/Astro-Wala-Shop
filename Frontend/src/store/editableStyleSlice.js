@@ -14,10 +14,9 @@ const loadStyles = () => {
   }
 };
 
-const saveStyles = (styles) => {
+const saveToLocal = (styles) => {
   try {
     localStorage.setItem(STYLES_KEY, JSON.stringify(styles));
-    debouncedSaveToDB(styles);
   } catch {
     /* ignore */
   }
@@ -25,6 +24,7 @@ const saveStyles = (styles) => {
 
 let saveTimeout = null;
 const debouncedSaveToDB = (styles) => {
+  const plainStyles = JSON.parse(JSON.stringify(styles));
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(async () => {
     try {
@@ -32,13 +32,18 @@ const debouncedSaveToDB = (styles) => {
       if (!token) return; // Only admin can save
       await axios.put(
         `${backendUrl}/api/v1/theme/editable-styles`,
-        { styles },
+        { styles: plainStyles },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (err) {
       console.error("Failed to sync styles to DB", err);
     }
   }, 1000);
+};
+
+const saveStyles = (styles) => {
+  saveToLocal(styles);
+  debouncedSaveToDB(styles);
 };
 
 export const fetchEditableStyles = createAsyncThunk(
@@ -119,7 +124,7 @@ const editableStyleSlice = createSlice({
     },
     setStyles: (state, action) => {
       state.styles = action.payload;
-      saveStyles(state.styles);
+      saveToLocal(state.styles); // Only save to local on fetch, don't ping DB again
     },
     registerKey: (state, action) => {
       const key = action.payload;
