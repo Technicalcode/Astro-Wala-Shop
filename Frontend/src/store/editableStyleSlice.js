@@ -59,6 +59,18 @@ const editableStyleSlice = createSlice({
       };
       saveStyles(state.styles);
     },
+    setText: (state, action) => {
+      const { key, text } = action.payload;
+      if (!key) return;
+
+      const currentStyles = state.styles[key] || {};
+
+      state.styles[key] = {
+        ...currentStyles,
+        text,
+      };
+      saveStyles(state.styles);
+    },
     resetStyle: (state, action) => {
       const key = action.payload;
       if (key && state.styles[key]) {
@@ -102,6 +114,7 @@ export const {
   toggleEditMode,
   setColor,
   setBackground,
+  setText,
   resetStyle,
   resetAllStyles,
   setStyles,

@@ -59,7 +59,8 @@ export default function Editable({
   const editMode = useSelector(selectEditMode);
   
   const storageKey = group || id;
-  const override = useSelector(selectStyle(storageKey));
+  const colorOverride = useSelector(selectStyle(storageKey));
+  const textOverride = useSelector(selectStyle(id || storageKey));
   const parentBg = useContext(CurrentBgContext);
 
   if (!storageKey && import.meta.env?.DEV) {
@@ -74,8 +75,8 @@ export default function Editable({
     return () => dispatch(unregisterKey(storageKey));
   }, [storageKey, dispatch]);
 
-  let activeColor = override.color;
-  let activeBg = override.background;
+  let activeColor = colorOverride.color;
+  let activeBg = colorOverride.background;
 
   const effectiveBg = activeBg || (isolate ? null : parentBg);
 
@@ -110,9 +111,11 @@ export default function Editable({
     e.stopPropagation();
     dispatch(openPopover({
       key: storageKey,
+      textKey: id || storageKey,
       label: label || storageKey,
       hasBackground: kind === "button",
       hasText: kind === "button" || kind === "text",
+      defaultText: typeof children === "string" ? children : "",
       anchorRect: e.currentTarget.getBoundingClientRect(),
     }));
   };
@@ -131,7 +134,7 @@ export default function Editable({
       }
       title={active ? "Double-click to change color" : rest.title}
     >
-      {children}
+      {textOverride.text !== undefined ? textOverride.text : children}
     </Tag>
   );
 

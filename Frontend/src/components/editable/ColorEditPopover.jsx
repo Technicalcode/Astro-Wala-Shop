@@ -8,6 +8,7 @@ import {
   closePopover,
   setColor,
   setBackground,
+  setText,
   resetStyle,
 } from "../../store/editableStyleSlice";
 
@@ -104,7 +105,9 @@ export default function ColorEditPopover() { // Force Vite reload
   const popover = useSelector(selectPopover);
   
   const popoverKey = popover?.key;
+  const textKey = popover?.textKey;
   const override = useSelector(selectStyle(popoverKey));
+  const textOverride = useSelector(selectStyle(textKey));
   const groupCount = useSelector(selectGroupCount(popoverKey));
 
   const popoverRef = useRef(null);
@@ -125,10 +128,10 @@ export default function ColorEditPopover() { // Force Vite reload
 
   if (!popover) return null;
 
-  const { key, label, hasBackground, hasText = true, anchorRect } = popover;
+  const { key, label, hasBackground, hasText = true, defaultText = "", anchorRect } = popover;
 
   // Estimate popover height
-  const estimatedPopoverHeight = (hasBackground ? 45 : 0) + (hasText ? 45 : 0) + 145;
+  const estimatedPopoverHeight = (hasBackground ? 45 : 0) + (hasText ? 85 : 0) + 145;
 
   // The sticky navbar takes up ~150px. If there isn't enough room above the
   // clicked element for the full popover (plus a small margin), flip it down.
@@ -186,10 +189,24 @@ export default function ColorEditPopover() { // Force Vite reload
         </div>
       )}
 
+      {/* Text Content Row */}
+      {hasText && (
+        <div className="flex flex-col gap-1 mb-3">
+          <label className="text-xs text-gray-600 font-medium shrink-0">Text Content</label>
+          <input
+            type="text"
+            value={textOverride.text !== undefined ? textOverride.text : defaultText}
+            onChange={(e) => dispatch(setText({ key: textKey, text: e.target.value }))}
+            className="w-full text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30 text-gray-700"
+            placeholder="Type here to change text..."
+          />
+        </div>
+      )}
+
       {/* Text color row */}
       {hasText && (
         <div className="flex items-center gap-2 mb-2">
-          <label className="text-xs text-gray-600 font-medium w-16 shrink-0">Text</label>
+          <label className="text-xs text-gray-600 font-medium w-16 shrink-0">Text Color</label>
           <input
             type="color"
             value={override.color || "#1f2a44"}
@@ -224,7 +241,10 @@ export default function ColorEditPopover() { // Force Vite reload
 
       <div className="flex justify-end mt-1">
         <button
-          onClick={() => dispatch(resetStyle(key))}
+          onClick={() => {
+            dispatch(resetStyle(key));
+            if (textKey && textKey !== key) dispatch(resetStyle(textKey));
+          }}
           className="flex items-center gap-1 text-[11px] font-semibold text-brand hover:text-brand-dark"
         >
           <RotateCcw size={12} /> Reset
