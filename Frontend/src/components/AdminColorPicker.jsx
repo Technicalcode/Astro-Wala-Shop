@@ -140,7 +140,7 @@ export default function AdminColorPicker() {
       )}
 
       {/* Element / group color editor — toggle + shared popover */}
-      <div className="fixed right-3 top-24 z-40 flex items-center gap-2.5 bg-amber-50 border border-amber-200 px-3 py-2 rounded-full shadow-md">
+      <div className="fixed right-3 top-40 z-40 flex items-center gap-2.5 bg-amber-50 border border-amber-200 px-3 py-2 rounded-full shadow-md">
         <Pencil size={13} className="text-amber-700" />
         <span className="text-xs font-semibold text-amber-700">Edit Mode</span>
         <label className="relative inline-flex items-center cursor-pointer">
