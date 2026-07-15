@@ -34,7 +34,7 @@ router.put("/editable-styles", TokenVerify, isAdmin, async (req, res) => {
     }
 
     themeSetting.styles = styles;
-    themeSetting.updatedBy = req.user._id; // Assuming user is attached by middlewere
+    themeSetting.updatedBy = req.user.id || req.user._id; // Accommodate both token layouts
     await themeSetting.save();
 
     return res.status(200).json({ message: "Styles updated successfully", styles: themeSetting.styles });

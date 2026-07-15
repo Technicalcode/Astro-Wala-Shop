@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { showErrorPopup } from "../utils/notificationCenter";
 import { parseColor, getContrastRatio, getContrastingColor } from "../utils/colorUtils";
-import { backendUrl } from "../config/api";
+import { backendUrl, getStoredAccessToken } from "../config/api";
 import axios from "axios";
 
 const STYLES_KEY = "astromart_editable_styles_v1";
@@ -28,7 +28,7 @@ const debouncedSaveToDB = (styles) => {
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(async () => {
     try {
-      const token = localStorage.getItem("token") || localStorage.getItem("adminToken");
+      const token = getStoredAccessToken();
       if (!token) return; // Only admin can save
       await axios.put(
         `${backendUrl}/api/v1/theme/editable-styles`,
