@@ -188,6 +188,7 @@ export default function AccountProfile() {
   };
 
   return (
+    <>
     <Editable as="div" kind="button" id="acc-profile-bg" label="Profile Form Background" className="bg-white rounded-md shadow-card p-6">
       <Editable as="h1" id="acc-profile-heading" label="Profile Heading" className="text-xl font-semibold text-gray-900 mb-6">
         Edit Profile
@@ -356,5 +357,6 @@ export default function AccountProfile() {
       onClose={() => setShowToast(false)}
       message="Profile saved successfully!"
     />
+    </>
   );
 }
