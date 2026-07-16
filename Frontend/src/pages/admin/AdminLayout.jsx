@@ -118,10 +118,12 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const editMode = useSelector(selectEditMode);
 
-  // ── New User Notification State (Today's Count) ──
+  // ── New User Notification State (Today's Count + Live Toast) ──
   const [todayUsers, setTodayUsers] = useState([]);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [todayCount, setTodayCount] = useState(0);
+  const [toasts, setToasts] = useState([]);        // live popup toasts
+  const seenIdsRef = useRef(null);                  // track already-seen user IDs
   const notifPanelRef = useRef(null);
 
   // Helper: check if a date is today
@@ -134,6 +136,10 @@ export default function AdminLayout() {
       d.getDate() === now.getDate()
     );
   };
+
+  // Dismiss a toast by id
+  const dismissToast = (id) =>
+    setToasts((prev) => prev.filter((t) => t.id !== id));
 
   // Fetch today's new users from backend
   const fetchTodayUsers = async () => {
@@ -151,6 +157,29 @@ export default function AdminLayout() {
       const newToday = users.filter((u) => isToday(u.createdAt));
       setTodayUsers(newToday);
       setTodayCount(newToday.length);
+
+      // ── Real-time toast: detect brand-new users since last poll ──
+      const allIds = new Set(users.map((u) => u._id || u.id));
+      if (seenIdsRef.current === null) {
+        // First load — just record baseline, no toast
+        seenIdsRef.current = allIds;
+        return;
+      }
+      const brandNew = users.filter((u) => !seenIdsRef.current.has(u._id || u.id));
+      if (brandNew.length > 0) {
+        const newToasts = brandNew.map((u) => ({
+          id: `${u._id || u.id}-${Date.now()}`,
+          name: u.name || u.fullName || "—",
+          email: u.email || "",
+          initial: (u.name || u.fullName || u.email || "U")[0].toUpperCase(),
+        }));
+        setToasts((prev) => [...newToasts, ...prev].slice(0, 5));
+        // Auto-dismiss each toast after 6 seconds
+        newToasts.forEach((t) => {
+          setTimeout(() => dismissToast(t.id), 6000);
+        });
+      }
+      seenIdsRef.current = allIds;
     } catch {}
   };
 
@@ -424,6 +453,37 @@ export default function AdminLayout() {
           </div>
           </div>
         </div>
+
+        {/* ── Real-time New User Toast Popups ── */}
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col-reverse gap-3 pointer-events-none">
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className="pointer-events-auto flex items-center gap-3 bg-[#1a1f3a] border border-amber-400/40 rounded-2xl pl-3 pr-4 py-3 shadow-2xl min-w-[270px] max-w-[320px]"
+              style={{ animation: "slideInRight 0.35s cubic-bezier(.4,0,.2,1)" }}
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 text-white font-bold text-base shadow-md">
+                {t.initial}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold text-amber-400 mb-0.5">🎉 New User Joined!</p>
+                <p className="text-sm text-white font-bold truncate leading-tight">{t.name}</p>
+                <p className="text-xs text-white/40 truncate">{t.email}</p>
+              </div>
+              <button
+                onClick={() => dismissToast(t.id)}
+                className="shrink-0 ml-1 text-white/30 hover:text-white/70 transition-colors text-lg leading-none"
+              >×</button>
+            </div>
+          ))}
+        </div>
+
+        <style>{`
+          @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to   { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto overflow-x-hidden">
           <Outlet />
