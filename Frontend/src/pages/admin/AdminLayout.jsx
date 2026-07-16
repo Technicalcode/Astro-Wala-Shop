@@ -122,7 +122,9 @@ export default function AdminLayout() {
   const [todayUsers, setTodayUsers] = useState([]);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [todayCount, setTodayCount] = useState(0);
-  const [toasts, setToasts] = useState([]);        // live popup toasts
+  const [notifPage, setNotifPage] = useState(1);    // pagination page
+  const NOTIF_PER_PAGE = 20;
+  const [toasts, setToasts] = useState([]);
   const seenIdsRef = useRef(null);                  // track already-seen user IDs
   const notifPanelRef = useRef(null);
 
@@ -404,6 +406,7 @@ export default function AdminLayout() {
               {/* Notification Dropdown Panel */}
               {showNotifPanel && (
                 <div className="absolute right-0 top-12 w-80 bg-[#1e2340] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                     <div>
                       <span className="text-sm font-bold text-white">🔔 Today's New Users</span>
@@ -411,28 +414,62 @@ export default function AdminLayout() {
                         {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
-                    <span className="text-xl font-bold text-amber-400">{todayCount}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-amber-400">{todayCount}</span>
+                      <button
+                        onClick={() => setShowNotifPanel(false)}
+                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/50 hover:text-white transition-all text-sm leading-none"
+                        title="Close"
+                      >×</button>
+                    </div>
                   </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
+
+                  {/* User list - paginated 20 per page */}
+                  <div className="divide-y divide-white/5">
                     {todayUsers.length === 0 ? (
                       <div className="text-center py-8 text-white/30 text-sm">No new users today</div>
                     ) : (
-                      todayUsers.map((u) => (
-                        <div key={u._id || u.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 text-white font-bold text-sm">
-                            {((u.name || u.fullName || u.email || "U")[0]).toUpperCase()}
+                      todayUsers
+                        .slice((notifPage - 1) * NOTIF_PER_PAGE, notifPage * NOTIF_PER_PAGE)
+                        .map((u) => (
+                          <div key={u._id || u.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 text-white font-bold text-sm">
+                              {((u.name || u.fullName || u.email || "U")[0]).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-white truncate">{u.name || u.fullName || "—"}</p>
+                              <p className="text-xs text-white/40 truncate">{u.email}</p>
+                            </div>
+                            <span className="text-[10px] text-white/30 shrink-0 mt-0.5">
+                              {new Date(u.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white truncate">{u.name || u.fullName || "—"}</p>
-                            <p className="text-xs text-white/40 truncate">{u.email}</p>
-                          </div>
-                          <span className="text-[10px] text-white/30 shrink-0 mt-0.5">
-                            {new Date(u.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-                          </span>
-                        </div>
-                      ))
+                        ))
                     )}
                   </div>
+
+                  {/* Pagination - only when > 20 users */}
+                  {todayUsers.length > NOTIF_PER_PAGE && (
+                    <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/10 bg-white/5">
+                      <button
+                        onClick={() => setNotifPage((p) => Math.max(1, p - 1))}
+                        disabled={notifPage === 1}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        ← Prev
+                      </button>
+                      <span className="text-xs text-white/40">
+                        Page {notifPage} / {Math.ceil(todayUsers.length / NOTIF_PER_PAGE)}
+                      </span>
+                      <button
+                        onClick={() => setNotifPage((p) => Math.min(Math.ceil(todayUsers.length / NOTIF_PER_PAGE), p + 1))}
+                        disabled={notifPage === Math.ceil(todayUsers.length / NOTIF_PER_PAGE)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
