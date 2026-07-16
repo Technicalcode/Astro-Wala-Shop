@@ -48,6 +48,9 @@ const getDeliveryRange = (pincode) => {
   return { minDays: 3, maxDays: 6 };
 };
 
+const toBoolean = (value) =>
+  value === true || value === "true" || value === "1" || value === 1;
+
 const attachReviewSummary = async (products) => {
   const productList = Array.isArray(products) ? products : [products];
   const ids = productList
@@ -112,6 +115,7 @@ export const CreateProduct = async (req, res) => {
       brand,
       stock,
       producthightlight,
+      bestseller,
     } = req.body;
 
     const missingFields = [];
@@ -159,6 +163,7 @@ export const CreateProduct = async (req, res) => {
       brand,
       producthightlight,
       stock: Number(stock),
+      bestseller: toBoolean(bestseller),
 
       image: imageResult.image,
       public_id: imageResult.public_id,
@@ -336,6 +341,7 @@ export const UpdateProduct = async (req, res) => {
       brand,
       stock,
       producthightlight,
+      bestseller,
     } = req.body;
 
     console.log(req.body);
@@ -375,6 +381,7 @@ export const UpdateProduct = async (req, res) => {
     }
     if (category_id !== undefined && category_id !== "") product.category_id = category_id;
     if (stock !== undefined && stock !== "") product.stock = Number(stock);
+    if (bestseller !== undefined) product.bestseller = toBoolean(bestseller);
     await product.save();
     return res.status(200).json({
       message: "Product updated successfully",

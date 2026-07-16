@@ -27,6 +27,11 @@ const getDeliveryDate = (placedAt) => {
   return new Date(new Date(placedAt).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 };
 
+const getPrimaryProductPath = (order) => {
+  const productId = order.items?.[0]?.id;
+  return productId ? `/product/${productId}` : null;
+};
+
 function OrderTimeline({ status }) {
   if (status === "Cancelled") {
     return (
@@ -143,7 +148,10 @@ export default function Orders() {
         <div className="text-center py-10 text-gray-500">No orders found for the "{filter}" status.</div>
       ) : (
         <div className="flex flex-col gap-4">
-          {currentOrders.map((o) => (
+          {currentOrders.map((o) => {
+            const primaryProductPath = getPrimaryProductPath(o);
+
+            return (
             <Editable key={o.id} as="div" kind="button" group="order-card" label="Order Card Background"
               className="border border-gray-200 rounded-md p-4 hover:border-brand/40 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -166,8 +174,12 @@ export default function Orders() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
-                      <Editable as="p" group="order-id-text" label="Order ID Text"
-                        className="text-sm font-semibold text-gray-900">
+                      <Editable
+                        as={primaryProductPath ? Link : "p"}
+                        to={primaryProductPath || undefined}
+                        group="order-id-text"
+                        label="Order ID Text"
+                        className="block text-sm font-semibold text-gray-900 hover:text-brand hover:underline">
                         Order #{o.id}
                       </Editable>
                       <Editable as="p" group="order-date-text" label="Order Date Text"
@@ -203,7 +215,8 @@ export default function Orders() {
 
               </div>
             </Editable>
-          ))}
+            );
+          })}
         </div>
       )}
 

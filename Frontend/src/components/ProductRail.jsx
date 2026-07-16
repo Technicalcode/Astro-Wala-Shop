@@ -1,12 +1,24 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronsRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import Editable from "./editable/Editable";
 
 export default function ProductRail({ title, subtitle, products, viewAllTo, groupId }) {
+  const scrollRef = useRef(null);
   const railGroup = groupId ? `product-frame-${groupId}` : "product-frame";
   const titleGroup = groupId ? `product-frame-title-${groupId}` : "product-frame-title";
   const paragraphGroup = groupId ? `product-frame-paragraph-${groupId}` : "product-frame-paragraph";
+
+  const scrollToNextProducts = () => {
+    const rail = scrollRef.current;
+    if (!rail) return;
+
+    rail.scrollBy({
+      left: Math.max(rail.clientWidth - 80, 180),
+      behavior: "smooth",
+    });
+  };
 
   return (
     <Editable
@@ -44,10 +56,23 @@ export default function ProductRail({ title, subtitle, products, viewAllTo, grou
           </Editable>
         )}
       </div>
-      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-1">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} compact groupId={groupId} />
-        ))}
+      <div className="relative">
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-1">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} compact groupId={groupId} />
+          ))}
+        </div>
+        {products.length > 1 && (
+          <button
+            type="button"
+            onClick={scrollToNextProducts}
+            title="Show more products"
+            aria-label="Show more products"
+            className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-900 shadow-md transition hover:bg-brand hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+          >
+            <ChevronsRight size={22} />
+          </button>
+        )}
       </div>
     </Editable>
   );

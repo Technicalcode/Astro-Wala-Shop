@@ -39,9 +39,9 @@ export default function ProductCard({ product, compact = false, groupId }) {
         isolate
       >
         <div className="relative p-3 pb-0">
-          {product.badge && (
+          {product.bestseller && (
             <span className="absolute top-2 left-2 bg-maroon text-white text-[10px] font-semibold px-2 py-0.5 rounded z-20">
-              {product.badge}
+              Bestseller
             </span>
           )}
           <img

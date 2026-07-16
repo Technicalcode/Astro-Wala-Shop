@@ -20,6 +20,7 @@ const emptyForm = {
   highlights: "",
   description: "",
   stock: "100",
+  bestseller: false,
 };
 
 const LOW_STOCK_LIMIT = 5;
@@ -178,6 +179,7 @@ export default function AdminProducts() {
           },
         },
         { header: "Stock", width: 12, value: (product) => Number(product.stock) || 0 },
+        { header: "Bestseller", width: 14, value: (product) => product.bestseller ? "Yes" : "No" },
         {
           header: "Stock Status",
           width: 16,
@@ -220,6 +222,7 @@ export default function AdminProducts() {
       highlights: p.highlights ? p.highlights.join("\n") : "",
       description: p.description,
       stock: String(p.stock || 100),
+      bestseller: Boolean(p.bestseller),
     });
     setImages(p.images && p.images.length > 0 ? [...p.images] : [p.image]);
     setImageFile(p.imageFile || null);
@@ -309,6 +312,7 @@ export default function AdminProducts() {
       price: Number(form.price),
       mrp: Number(form.mrp) || Number(form.price),
       stock: Number(form.stock) || 0,
+      bestseller: Boolean(form.bestseller),
       categoryName,
       variants: form.variantOptions && form.variantOptions.length > 0 ? [{ 
         name: "Size", 
@@ -795,6 +799,16 @@ export default function AdminProducts() {
                 }}
                 className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
               />
+
+              <label className="flex items-center justify-between gap-4 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
+                <span className="font-medium text-gray-700">Bestseller</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.bestseller)}
+                  onChange={(e) => setForm({ ...form, bestseller: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+                />
+              </label>
 
               {form.variantOptions && form.variantOptions.length > 0 && (
                 <div className="border border-gray-200 rounded-md p-3 bg-gray-50/50">

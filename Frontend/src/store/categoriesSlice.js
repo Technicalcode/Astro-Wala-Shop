@@ -122,6 +122,7 @@ export const fetchCategories = createAsyncThunk(
               color: catColor,
               image: toImageUrl(cat.image),
               icon: "Folder",
+              bestseller: Boolean(cat.bestseller),
               createdAt: cat.createdAt || "",
               updatedAt: cat.updatedAt || "",
             };
@@ -141,6 +142,7 @@ export const createCategory = createAsyncThunk(
       body.append("name", categoryData.name);
       body.append("tagline", categoryData.tagline);
       body.append("themecolor", categoryData.color);
+      body.append("bestseller", String(Boolean(categoryData.bestseller)));
       if (categoryData.imageFile) {
         body.append("User_image", categoryData.imageFile);
       }
@@ -170,6 +172,7 @@ export const updateCategory = createAsyncThunk(
       body.append("name", categoryData.name);
       body.append("tagline", categoryData.tagline);
       body.append("themecolor", categoryData.color);
+      body.append("bestseller", String(Boolean(categoryData.bestseller)));
       if (categoryData.imageFile) {
         body.append("User_image", categoryData.imageFile);
       }

@@ -52,6 +52,11 @@ const productSchema = new mango.Schema(
       default: 0,
     },
 
+    bestseller: {
+      type: Boolean,
+      default: false,
+    },
+
     brand: {
       type: String,
       required: true,

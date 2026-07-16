@@ -83,6 +83,7 @@ export default function Checkout() {
   const [addressWarning, setAddressWarning] = useState(checkoutState?.addressWarning || "");
   const [addressSaveError, setAddressSaveError] = useState("");
   const [savingAddress, setSavingAddress] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const [payment, setPayment] = useState("razorpay");
   const [useWallet, setUseWallet] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -374,9 +375,28 @@ export default function Checkout() {
             <input placeholder="Full Name" value={address.name}
               onChange={(e) => setAddress({ ...address, name: e.target.value })}
               className="w-full min-w-0 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
-            <input placeholder="10-digit Mobile Number" value={address.phone} maxLength={10}
-              onChange={(e) => setAddress({ ...address, phone: e.target.value.replace(/\D/g, "") })}
-              className="w-full min-w-0 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
+            <div>
+              <input placeholder="10-digit Mobile Number" value={address.phone} maxLength={10}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setAddress({ ...address, phone: val });
+                  if (val.length === 0) {
+                    setPhoneError("");
+                  } else if (!/^[6-9]/.test(val)) {
+                    setPhoneError("❌ Mobile number must start with 6, 7, 8, or 9.");
+                  } else if (val.length < 10) {
+                    setPhoneError("⚠️ Please enter a complete 10-digit mobile number.");
+                  } else {
+                    setPhoneError("");
+                  }
+                }}
+                className={`w-full min-w-0 border rounded px-3 py-2 text-sm focus:outline-brand ${
+                  phoneError ? "border-red-400 bg-red-50" : "border-gray-300"
+                }`} />
+              {phoneError && (
+                <p className="text-xs text-red-600 mt-1 font-medium pl-1">{phoneError}</p>
+              )}
+            </div>
             <input placeholder="Address (House No, Street, Area)" value={address.line}
               onChange={(e) => setAddress({ ...address, line: e.target.value })}
               className="w-full min-w-0 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />

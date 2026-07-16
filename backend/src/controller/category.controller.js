@@ -1,9 +1,12 @@
 import catmodel from "../Model/Category.model.js";
 import { deleteImageAsset, saveImageAsset } from "../utils/image-upload.js";
 
+const toBoolean = (value) =>
+  value === true || value === "true" || value === "1" || value === 1;
+
 export const CreateCategory = async (req, res) => {
   try {
-    const { name, tagline, themecolor } = req.body || {};
+    const { name, tagline, themecolor, bestseller } = req.body || {};
 
     if (!name || !tagline || !themecolor) {
       return res.status(400).json({
@@ -33,6 +36,7 @@ export const CreateCategory = async (req, res) => {
       name: name,
       tagline: tagline,
       themecolor: themecolor,
+      bestseller: toBoolean(bestseller),
       image: imageResult.image,
       public_id: imageResult.public_id,
     });
@@ -93,7 +97,7 @@ export const GetAllCategory = async (req, res) => {
 export const UpdateCategory = async (req, res) => {
   try {
     const cateid = req.params.categoryId;
-    const { name, tagline, themecolor } = req.body || {};
+    const { name, tagline, themecolor, bestseller } = req.body || {};
 
     // if (!name || !tagline || !themecolor) {
     //   return res.status(400).json({
@@ -111,6 +115,7 @@ export const UpdateCategory = async (req, res) => {
     if (name !== undefined) updateData.name = name;
     if (tagline !== undefined) updateData.tagline = tagline;
     if (themecolor !== undefined) updateData.themecolor = themecolor;
+    if (bestseller !== undefined) updateData.bestseller = toBoolean(bestseller);
 
     if (req.file) {
       const existingCategory = await catmodel.findById(cateid);

@@ -24,7 +24,7 @@ export default function BannerCarousel() {
     if (index >= slides.length) setIndex(0);
   }, [index, slides.length]);
 
-  const slide = slides[index] || slides[0];
+  const activeIndex = slides.length > 0 ? index % slides.length : 0;
 
   const getAlignmentClasses = (align) => {
     switch (align) {
@@ -43,54 +43,70 @@ export default function BannerCarousel() {
   };
 
   return (
-    <div
-      className={`relative rounded-md overflow-hidden h-48 sm:h-64 md:h-80 lg:h-[400px] flex flex-col group ${getAlignmentClasses(slide?.alignment)}`}
-    >
-      <div 
-        className="absolute inset-0 bg-cover bg-top transition-transform duration-[10000ms] ease-linear group-hover:scale-110" 
-        style={{ backgroundImage: slide.bg }} 
-      />
-      {/* Removed dark overlay so the baked-in text shines clearly */}
-      <div 
-        className="absolute inset-0 bg-black transition-opacity duration-300" 
-        style={{ opacity: (slide?.overlayOpacity || 0) / 100 }} 
-      />
-      <div className={`relative z-10 w-full flex flex-col ${slide?.alignment?.includes('left') ? 'items-start' : slide?.alignment?.includes('right') ? 'items-end' : 'items-center'}`}>
-        {slide?.title && (
-          <Editable
-            as="h2"
-            group="banner-title"
-            label="Banner Slide Title"
-            className="font-display font-bold text-2xl md:text-4xl mb-2 drop-shadow-md"
-            style={{ color: slide.titleColor || "#ffffff" }}
-          >
-            {slide.title}
-          </Editable>
-        )}
-        {slide?.subtitle && (
-          <Editable
-            as="p"
-            group="banner-subtitle"
-            label="Banner Slide Subtitle"
-            className="text-sm md:text-base mb-4 drop-shadow-md"
-            style={{ color: slide.subtitleColor || "#f3f4f6" }}
-          >
-            {slide.subtitle}
-          </Editable>
-        )}
-        {slide?.cta && (
-          <Editable
-            as={Link}
-            to={slide.to || "/"}
-            kind="button"
-            group="banner-cta"
-            label="Banner CTA Button"
-            className="inline-block text-xs sm:text-base font-bold px-5 py-2 sm:px-8 sm:py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-            style={{ backgroundColor: slide.ctaBg || "#ffffff", color: slide.ctaText || "#000000" }}
-          >
-            {slide.cta}
-          </Editable>
-        )}
+    <div className="relative rounded-md overflow-hidden h-48 sm:h-64 md:h-80 lg:h-[400px] group bg-gray-100">
+      <div className="absolute inset-0">
+        {slides.map((slide, i) => {
+          const active = i === activeIndex;
+          return (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 flex flex-col transition-opacity duration-700 ease-in-out will-change-opacity ${
+                active ? "opacity-100 z-[1]" : "opacity-0 z-0 pointer-events-none"
+              } ${getAlignmentClasses(slide?.alignment)}`}
+            >
+              <div
+                className={`absolute inset-0 bg-cover bg-top transition-transform duration-[10000ms] ease-linear ${
+                  active ? "scale-100 group-hover:scale-110" : "scale-105"
+                }`}
+                style={{ backgroundImage: slide.bg }}
+              />
+              {/* Removed dark overlay so the baked-in text shines clearly */}
+              <div
+                className="absolute inset-0 bg-black transition-opacity duration-700 ease-in-out"
+                style={{ opacity: (slide?.overlayOpacity || 0) / 100 }}
+              />
+              <div className={`relative z-10 w-full flex flex-col transition-all duration-700 ease-out ${
+                active ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+              } ${slide?.alignment?.includes('left') ? 'items-start' : slide?.alignment?.includes('right') ? 'items-end' : 'items-center'}`}>
+                {slide?.title && (
+                  <Editable
+                    as="h2"
+                    group="banner-title"
+                    label="Banner Slide Title"
+                    className="font-display font-bold text-2xl md:text-4xl mb-2 drop-shadow-md"
+                    style={{ color: slide.titleColor || "#ffffff" }}
+                  >
+                    {slide.title}
+                  </Editable>
+                )}
+                {slide?.subtitle && (
+                  <Editable
+                    as="p"
+                    group="banner-subtitle"
+                    label="Banner Slide Subtitle"
+                    className="text-sm md:text-base mb-4 drop-shadow-md"
+                    style={{ color: slide.subtitleColor || "#f3f4f6" }}
+                  >
+                    {slide.subtitle}
+                  </Editable>
+                )}
+                {slide?.cta && (
+                  <Editable
+                    as={Link}
+                    to={slide.to || "/"}
+                    kind="button"
+                    group="banner-cta"
+                    label="Banner CTA Button"
+                    className="inline-block text-xs sm:text-base font-bold px-5 py-2 sm:px-8 sm:py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    style={{ backgroundColor: slide.ctaBg || "#ffffff", color: slide.ctaText || "#000000" }}
+                  >
+                    {slide.cta}
+                  </Editable>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {slides.length > 1 && (
@@ -116,7 +132,7 @@ export default function BannerCarousel() {
                 key={s.id}
                 onClick={() => setIndex(i)}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === index ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                  i === activeIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
               />

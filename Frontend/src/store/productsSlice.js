@@ -206,6 +206,7 @@ export const fetchProducts = createAsyncThunk(
                 highlights,
                 reviews: Array.isArray(p.reviews) ? p.reviews : [],
                 stock: Number(p.stock) || 0,
+                bestseller: Boolean(p.bestseller),
                 createdAt: p.createdAt || "",
                 updatedAt: p.updatedAt || "",
                 viewCount: Number(p.viewCount) || 0,
@@ -232,6 +233,7 @@ export const createProduct = createAsyncThunk(
       body.append("category_id", productData.category);
       body.append("brand", productData.brand || "");
       body.append("stock", String(productData.stock || 100));
+      body.append("bestseller", String(Boolean(productData.bestseller)));
 
       const sizeValue =
         productData.variants && productData.variants[0]
@@ -284,6 +286,7 @@ export const updateProduct = createAsyncThunk(
       if (product.category !== undefined) body.append("category_id", product.category);
       if (product.brand !== undefined) body.append("brand", product.brand || "");
       if (product.stock !== undefined) body.append("stock", String(product.stock));
+      if (product.bestseller !== undefined) body.append("bestseller", String(Boolean(product.bestseller)));
 
       const sizeValue =
         product.variants && product.variants[0]

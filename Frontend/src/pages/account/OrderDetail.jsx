@@ -43,6 +43,8 @@ export default function OrderDetail() {
   const displayStatus = order.status;
   const activeIdx = STEPS.findIndex((s) => s.key === displayStatus);
   const canCancel = ["Pending", "Confirmed"].includes(order.status);
+  const canDownloadInvoice = order.status === "Delivered";
+  const primaryProductPath = order.items?.[0]?.id ? `/product/${order.items[0].id}` : null;
 
   const handleCancel = async () => {
     setIsCancelling(true);
@@ -80,7 +82,13 @@ export default function OrderDetail() {
       
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Editable as="h1" id="order-detail-heading" label="Order Detail Heading" className="text-xl font-semibold text-gray-900">
+          <Editable
+            as={primaryProductPath ? Link : "h1"}
+            to={primaryProductPath || undefined}
+            id="order-detail-heading"
+            label="Order Detail Heading"
+            className="block text-xl font-semibold text-gray-900 hover:text-brand hover:underline"
+          >
             Order #{order.id}
           </Editable>
           <Editable as="p" id="order-detail-date" label="Order Date Text" className="text-sm text-gray-500">
@@ -104,9 +112,11 @@ export default function OrderDetail() {
               <Undo2 size={15} /> Return Item
             </Editable>
           )}
-          <Editable as="button" kind="button" id="order-invoice-btn" label="Download Invoice Button" onClick={handleInvoiceDownload} disabled={isDownloadingInvoice} className="text-sm text-brand border border-brand/30 bg-brand/5 hover:bg-brand/10 px-4 py-1.5 rounded-sm font-medium flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-            <Download size={15} /> {isDownloadingInvoice ? "Downloading..." : "Invoice"}
-          </Editable>
+          {canDownloadInvoice && (
+            <Editable as="button" kind="button" id="order-invoice-btn" label="Download Invoice Button" onClick={handleInvoiceDownload} disabled={isDownloadingInvoice} className="text-sm text-brand border border-brand/30 bg-brand/5 hover:bg-brand/10 px-4 py-1.5 rounded-sm font-medium flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50">
+              <Download size={15} /> {isDownloadingInvoice ? "Downloading..." : "Invoice"}
+            </Editable>
+          )}
         </div>
       </div>
 

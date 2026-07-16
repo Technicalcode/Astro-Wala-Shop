@@ -39,7 +39,11 @@ export default function CategoryGrid() {
     return <PageLoadingState label="Loading categories..." />;
   }
 
-  const isScrollableMobile = categories.length > 12;
+  const sortedCategories = [...categories].sort((a, b) => {
+    if (a.bestseller === b.bestseller) return 0;
+    return a.bestseller ? -1 : 1;
+  });
+  const isScrollableMobile = sortedCategories.length > 12;
   const mobileGridClasses = isScrollableMobile 
     ? "grid-rows-3 grid-flow-col overflow-x-auto" 
     : "grid-cols-4";
@@ -70,7 +74,7 @@ export default function CategoryGrid() {
         className={`grid ${mobileGridClasses} md:flex md:flex-nowrap md:overflow-x-auto gap-y-6 gap-x-2 md:gap-6 w-full no-scrollbar snap-x pb-2 justify-items-center`}
         style={mobileGridStyles}
       >
-        {categories.map((c) => {
+        {sortedCategories.map((c) => {
           const Icon = Icons[c.icon] || Icons.Sparkles;
           return (
             <Link

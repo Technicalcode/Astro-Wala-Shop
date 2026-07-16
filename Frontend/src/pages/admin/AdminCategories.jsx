@@ -40,7 +40,7 @@ export default function AdminCategories() {
   const cats = useSelector(selectCategories);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ id: "", name: "", tagline: "", color: "#000000", image: "", imageFile: null });
+  const [form, setForm] = useState({ id: "", name: "", tagline: "", color: "#000000", image: "", imageFile: null, bestseller: false });
   const [editingImageSrc, setEditingImageSrc] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortFilter, setSortFilter] = useState("placeholder");
@@ -141,13 +141,13 @@ export default function AdminCategories() {
   };
 
   const openAdd = () => {
-    setForm({ id: "", name: "", tagline: "", color: "#2E6B5C", image: "", imageFile: null });
+    setForm({ id: "", name: "", tagline: "", color: "#2E6B5C", image: "", imageFile: null, bestseller: false });
     setEditingId(null);
     setShowForm(true);
   };
 
   const openEdit = (c) => {
-    setForm({ ...c, imageFile: c.imageFile || null });
+    setForm({ ...c, bestseller: Boolean(c.bestseller), imageFile: c.imageFile || null });
     setEditingId(c.id);
     setShowForm(true);
   };
@@ -345,6 +345,7 @@ export default function AdminCategories() {
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs w-16">#</Editable>
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs">Name</Editable>
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs">Tagline</Editable>
+              <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs">Bestseller</Editable>
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs">Theme Color</Editable>
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs">Created Date</Editable>
               <Editable as="th" group="admin-cat-col" kind="button" label="Column Header" className="py-4 px-6 font-bold text-gray-500 uppercase tracking-wider text-xs text-right">Actions</Editable>
@@ -383,6 +384,15 @@ export default function AdminCategories() {
                 </td>
                 <Editable as="td" group="admin-cat-tagline" kind="button" label="Category Tagline" className="py-4 px-6 text-gray-600 font-medium">{c.tagline}</Editable>
                 <td className="py-4 px-6">
+                  {c.bestseller ? (
+                    <span className="inline-flex rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700">
+                      Bestseller
+                    </span>
+                  ) : (
+                    <span className="text-xs font-medium text-gray-400">No</span>
+                  )}
+                </td>
+                <td className="py-4 px-6">
                   <div className="flex items-center gap-3 bg-gray-50/80 w-max px-3 py-1.5 rounded-lg border border-gray-100">
                     <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: c.color }} />
                     <Editable as="span" group="admin-cat-color-text" kind="button" label="Category Color Text" className="text-gray-700 text-sm font-bold font-mono uppercase">{c.color}</Editable>
@@ -405,7 +415,7 @@ export default function AdminCategories() {
             ))}
             {filteredCats.length === 0 && (
               <tr>
-                <td colSpan="6" className="py-20 text-center">
+                <td colSpan="7" className="py-20 text-center">
                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4 text-gray-300 shadow-inner">
                      <Icons.Search size={28} />
                    </div>
@@ -471,6 +481,15 @@ export default function AdminCategories() {
                   <input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand font-mono" />
                 </div>
               </div>
+              <label className="flex items-center justify-between gap-4 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
+                <span className="font-medium text-gray-700">Bestseller</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.bestseller)}
+                  onChange={(e) => setForm({ ...form, bestseller: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+                />
+              </label>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Category Image (Optional)</label>
                 <div className="flex gap-3 items-center">

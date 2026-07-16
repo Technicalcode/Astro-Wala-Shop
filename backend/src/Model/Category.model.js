@@ -16,6 +16,11 @@ const Categoty = new mongoose.Schema(
       default: "#000000",
     },
 
+    bestseller: {
+      type: Boolean,
+      default: false,
+    },
+
     image: {
       type: String,
       required: true,

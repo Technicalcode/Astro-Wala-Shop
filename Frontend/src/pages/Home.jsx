@@ -66,7 +66,9 @@ export default function Home() {
   );
   const bestsellers = allProducts
     .filter(
-      (product) => !bestsellerCategoryId || product.category === bestsellerCategoryId,
+      (product) =>
+        product.bestseller &&
+        (!bestsellerCategoryId || product.category === bestsellerCategoryId),
     )
     .slice(0, 10);
   const categoryRails = categories
