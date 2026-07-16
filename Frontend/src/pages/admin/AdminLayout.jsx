@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, FileText, MonitorSmartphone, Palette, TrendingUp, Eye, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, FileText, MonitorSmartphone, Palette, TrendingUp, Eye, ChevronDown, Bell } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserDisplayName, selectUser, logout } from "../../store/authSlice";
 import { selectEditMode, toggleEditMode } from "../../store/editableStyleSlice";
 import ColorEditPopover from "../../components/editable/ColorEditPopover";
 import Editable from "../../components/editable/Editable";
+import { backendUrl, getStoredAccessToken } from "../../config/api";
 
 const navGroups = [
   {
@@ -116,6 +117,82 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const editMode = useSelector(selectEditMode);
+
+  // ── New User Notification State ──
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const lastUserCountRef = useRef(null);
+  const lastUserIdsRef = useRef(null);
+  const notifPanelRef = useRef(null);
+
+  // Poll backend for new users every 30 seconds
+  useEffect(() => {
+    const checkNewUsers = async () => {
+      try {
+        const token = getStoredAccessToken();
+        if (!token) return;
+        const res = await fetch(`${backendUrl}/api/v1/admin/all-users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const users = data.users || data.data || data || [];
+        if (!Array.isArray(users)) return;
+
+        const currentCount = users.length;
+        const currentIds = new Set(users.map((u) => u._id || u.id));
+
+        if (lastUserCountRef.current === null) {
+          // First load — just save the baseline
+          lastUserCountRef.current = currentCount;
+          lastUserIdsRef.current = currentIds;
+          return;
+        }
+
+        // Find newly joined users
+        const newUsers = users.filter(
+          (u) => !lastUserIdsRef.current.has(u._id || u.id)
+        );
+
+        if (newUsers.length > 0) {
+          const newNotifs = newUsers.map((u) => ({
+            id: Date.now() + Math.random(),
+            name: u.name || u.fullName || "Someone",
+            email: u.email || "",
+            time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
+          }));
+          setNotifications((prev) => [...newNotifs, ...prev].slice(0, 20));
+          setUnreadCount((prev) => prev + newUsers.length);
+
+          // Auto-dismiss toast after 5 seconds
+          newNotifs.forEach((n) => {
+            setTimeout(() => {
+              setNotifications((prev) => prev.map((x) => x.id === n.id ? { ...x, toastDone: true } : x));
+            }, 5000);
+          });
+        }
+
+        lastUserCountRef.current = currentCount;
+        lastUserIdsRef.current = currentIds;
+      } catch {}
+    };
+
+    checkNewUsers();
+    const interval = setInterval(checkNewUsers, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Close panel on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (notifPanelRef.current && !notifPanelRef.current.contains(e.target)) {
+        setShowNotifPanel(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const SidebarContent = (
     <>
@@ -282,19 +359,89 @@ export default function AdminLayout() {
             )}
           </div>
           
-          <Editable
-            as={Link}
-            to="/"
-            kind="button"
-            id="admin-visit-store-btn"
-            label="Visit Store Button"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white bg-white/10 border border-white/10 hover:bg-white/20 hover:text-amber-300 transition-all shadow-sm hover:shadow-md active:scale-95"
-          >
-            <Home size={15} />
-            <Editable as="span" id="admin-visit-store-text" kind="button" label="Visit Store Text">
-              Visit Store
+          <div className="flex items-center gap-3">
+            {/* ── Notification Bell ── */}
+            <div className="relative" ref={notifPanelRef}>
+              <button
+                onClick={() => { setShowNotifPanel((p) => !p); setUnreadCount(0); }}
+                className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all shadow-sm hover:shadow-md active:scale-95"
+                title="Notifications"
+              >
+                <Bell size={16} className="text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Panel */}
+              {showNotifPanel && (
+                <div className="absolute right-0 top-12 w-80 bg-[#1e2340] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                    <span className="text-sm font-bold text-white">🔔 New Users</span>
+                    {notifications.length > 0 && (
+                      <button
+                        onClick={() => setNotifications([])}
+                        className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
+                      >Clear all</button>
+                    )}
+                  </div>
+                  <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-8 text-white/30 text-sm">No new users yet</div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 text-white font-bold text-sm">
+                            {(n.name[0] || "U").toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">{n.name}</p>
+                            <p className="text-xs text-white/40 truncate">{n.email}</p>
+                          </div>
+                          <span className="text-[10px] text-white/30 shrink-0 mt-0.5">{n.time}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Editable
+              as={Link}
+              to="/"
+              kind="button"
+              id="admin-visit-store-btn"
+              label="Visit Store Button"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white bg-white/10 border border-white/10 hover:bg-white/20 hover:text-amber-300 transition-all shadow-sm hover:shadow-md active:scale-95"
+            >
+              <Home size={15} />
+              <Editable as="span" id="admin-visit-store-text" kind="button" label="Visit Store Text">
+                Visit Store
+              </Editable>
             </Editable>
-          </Editable>
+          </div>
+
+          {/* ── New User Toast Popup ── */}
+          <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
+            {notifications.filter((n) => !n.toastDone).slice(0, 3).map((n) => (
+              <div
+                key={n.id}
+                className="pointer-events-auto flex items-center gap-3 bg-[#1e2340] border border-amber-400/30 rounded-2xl px-4 py-3 shadow-2xl animate-fade-in-up min-w-[260px]"
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 text-white font-bold">
+                  {(n.name[0] || "U").toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-amber-400 font-semibold">🎉 New User Joined!</p>
+                  <p className="text-sm text-white font-bold truncate">{n.name}</p>
+                  <p className="text-xs text-white/40 truncate">{n.email}</p>
+                </div>
+              </div>
+            ))}
+          </div>
           </div>
         </div>
 
