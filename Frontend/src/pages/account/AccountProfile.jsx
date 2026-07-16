@@ -201,7 +201,7 @@ export default function AccountProfile() {
         <div className="bg-red-50 text-red-700 p-3 rounded text-sm mb-4">Failed to save profile details.</div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-2xl">
+      <form onSubmit={handleSubmit} onChange={() => { if (status === "no_changes" || status === "success") setStatus(""); }} className="flex flex-col gap-4 max-w-2xl">
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
           <input
@@ -338,9 +338,9 @@ export default function AccountProfile() {
             </div>
           )}
           {status === "no_changes" && (
-            <div className="flex items-center gap-1.5 text-green-600 text-sm font-medium animate-[fadeIn_0.3s_ease-out]">
+            <div className="flex items-center gap-1.5 text-amber-600 text-sm font-medium animate-[fadeIn_0.3s_ease-out]">
               <CheckCircle size={16} />
-              <span>Already submitted.</span>
+              <span>No changes to save.</span>
             </div>
           )}
         </div>
