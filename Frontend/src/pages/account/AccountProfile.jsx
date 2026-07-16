@@ -3,6 +3,7 @@ import { CheckCircle } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserSavedName, selectUser, updateUser } from "../../store/authSlice";
 import Editable from "../../components/editable/Editable";
+import SaveToast from "../../components/SaveToast";
 import {
   backendUrl,
   fetchWithAuth,
@@ -60,6 +61,7 @@ export default function AccountProfile() {
   const [initialForm, setInitialForm] = useState(emptyForm);
   const [status, setStatus] = useState(""); // "loading", "saving", "success", "error", "no_changes"
   const [errorMsg, setErrorMsg] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,6 +180,7 @@ export default function AccountProfile() {
 
       setStatus("success");
       setInitialForm(form);
+      setShowToast(true);
       setTimeout(() => setStatus(""), 3000);
     } catch {
       setStatus("error");
@@ -346,5 +349,12 @@ export default function AccountProfile() {
         </div>
       </form>
     </Editable>
+
+    {/* Save Success Toast */}
+    <SaveToast
+      show={showToast}
+      onClose={() => setShowToast(false)}
+      message="Profile saved successfully!"
+    />
   );
 }
