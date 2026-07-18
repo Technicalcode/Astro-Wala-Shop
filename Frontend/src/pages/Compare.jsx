@@ -83,7 +83,7 @@ export default function Compare() {
                     ₹{p.price?.toLocaleString("en-IN")}
                   </Editable>
                   {p.mrp > p.price && (
-                    <span className="block text-xs text-gray-400 line-through">
+                    <span className="block text-xs text-gray-600 line-through">
                       ₹{p.mrp?.toLocaleString("en-IN")}
                     </span>
                   )}

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ShieldCheck, Truck, RotateCcw, Headphones, Award, Lock } from "lucide-react";
 import Editable from "./editable/Editable";
 
@@ -34,7 +35,7 @@ const features = [
   },
 ];
 
-export default function WhyChooseUs() {
+function WhyChooseUs() {
   return (
     <Editable
       as="div"
@@ -85,3 +86,5 @@ export default function WhyChooseUs() {
     </Editable>
   );
 }
+
+export default memo(WhyChooseUs);

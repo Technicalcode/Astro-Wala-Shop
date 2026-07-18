@@ -4,8 +4,7 @@ export default function PageLoadingState({ label = "Loading..." }) {
       <div className="page-loading-track" aria-hidden="true">
         <span className="page-loading-track__indicator" />
       </div>
-      <p className="mt-3 text-sm text-gray-500">{label}</p>
+      <p className="mt-3 text-sm text-gray-700">{label}</p>
     </div>
   );
 }
-

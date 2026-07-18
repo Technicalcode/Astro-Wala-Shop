@@ -1,18 +1,20 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { ShieldCheck, GitCompare } from "lucide-react";
 import StarRating from "./StarRating";
 import Editable from "./editable/Editable";
 import WishlistButton from "./WishlistButton";
 import { useSelector, useDispatch } from "react-redux";
-import { selectCompareList, selectCanAddMoreCompare, toggleCompare } from "../store/compareSlice";
+import { selectCanAddMoreCompare, toggleCompare } from "../store/compareSlice";
 import { COMMON_CLOUDINARY_IMAGE_URL } from "../config/api";
 
-export default function ProductCard({ product, compact = false, groupId }) {
+function ProductCard({ product, compact = false, groupId }) {
   const dispatch = useDispatch();
-  const compareList = useSelector(selectCompareList);
+  const comparing = useSelector((state) =>
+    state.compare.compareList.some((p) => p.id === product.id),
+  );
   const canAddMore = useSelector(selectCanAddMoreCompare);
   const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
-  const comparing = compareList.some((p) => p.id === product.id);
 
   const bgGroup = groupId ? `product-card-bg-${groupId}` : "product-card-bg";
   const textGroup = groupId ? `product-card-text-${groupId}` : "product-card-text";
@@ -53,8 +55,16 @@ export default function ProductCard({ product, compact = false, groupId }) {
           />
           {/* Compare toggle — bottom left of image */}
           <button
+            type="button"
             onClick={(e) => { e.preventDefault(); dispatch(toggleCompare(product)); }}
             title={comparing ? "Remove from compare" : canAddMore ? "Add to compare" : "Max 3 products"}
+            aria-label={
+              comparing
+                ? `Remove ${product.name} from compare`
+                : canAddMore
+                  ? `Add ${product.name} to compare`
+                  : "Compare list is full"
+            }
             className={`absolute bottom-2 left-4 z-20 h-7 w-7 rounded-full shadow flex items-center justify-center transition-all ${
               comparing ? "bg-brand text-white" : canAddMore ? "bg-white/90 text-gray-400 hover:text-brand opacity-0 group-hover:opacity-100" : "bg-white/90 text-gray-300 cursor-not-allowed opacity-0 group-hover:opacity-100"
             }`}
@@ -74,7 +84,7 @@ export default function ProductCard({ product, compact = false, groupId }) {
             </Editable>
             {product.mrp > product.price && (
               <>
-                <Editable as="span" group={mrpGroup} kind="button" label="MRP" className="text-xs text-gray-400 line-through">₹{product.mrp.toLocaleString("en-IN")}</Editable>
+                <Editable as="span" group={mrpGroup} kind="button" label="MRP" className="text-xs text-gray-600 line-through">₹{product.mrp.toLocaleString("en-IN")}</Editable>
                 <Editable as="span" group={discountGroup} kind="button" label="Discount"
                   className="text-xs font-medium" style={{ color: "#15803d" }}>
                   {discount}% off
@@ -93,3 +103,5 @@ export default function ProductCard({ product, compact = false, groupId }) {
     </div>
   );
 }
+
+export default memo(ProductCard);

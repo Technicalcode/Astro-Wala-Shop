@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { Plus, Pencil, Trash2, X, FolderTree } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectCategories, createCategory, updateCategory, deleteCategory, fetchCategories } from "../../store/categoriesSlice";
 import { fileToCompressedDataUrl } from "../../utils/imageUtils";
-import ImageEditorModal from "../../components/ImageEditorModal";
 import Editable from "../../components/editable/Editable";
 import { COMMON_CLOUDINARY_IMAGE_URL, toAssetUrl } from "../../config/api";
+
+const ImageEditorModal = lazy(() => import("../../components/ImageEditorModal"));
 
 const PAGE_SIZE = 10;
 
@@ -521,11 +522,13 @@ export default function AdminCategories() {
       )}
 
       {editingImageSrc && (
-        <ImageEditorModal
-          imageSrc={editingImageSrc}
-          onSave={handleSaveEditedImage}
-          onCancel={() => setEditingImageSrc(null)}
-        />
+        <Suspense fallback={null}>
+          <ImageEditorModal
+            imageSrc={editingImageSrc}
+            onSave={handleSaveEditedImage}
+            onCancel={() => setEditingImageSrc(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

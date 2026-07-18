@@ -145,6 +145,57 @@ export const login =
 		}
 	};
 
+export const googleLogin =
+	(credential) =>
+	async (dispatch) => {
+		try {
+			const res = await trackedFetch(`${backendUrl}/api/v1/auth/google`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ credential }),
+			});
+			const data = await res.json();
+
+			if (!res.ok) {
+				return {
+					ok: false,
+					error: data.message || "Google login failed.",
+				};
+			}
+
+			const userEmail = data.user?.email || "";
+			const displayName =
+				getProfileName(data.user) || data.user?.name || data.user?.fullName || "";
+
+			const session = {
+				id: data.user?.id || "u-google",
+				name: cleanText(displayName) || userEmail,
+				fullName: cleanText(displayName),
+				email: userEmail,
+				role: data.user?.role || "customer",
+			};
+
+			localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+			if (data.loginActivityId) {
+				localStorage.setItem(LOGIN_ACTIVITY_KEY, data.loginActivityId);
+			} else {
+				localStorage.removeItem(LOGIN_ACTIVITY_KEY);
+			}
+
+			if (data.token?.accessToken) {
+				localStorage.setItem("astromart_token", data.token.accessToken);
+				if (data.token.refreshToken) {
+					localStorage.setItem("astromart_refresh_token", data.token.refreshToken);
+				}
+			}
+
+			dispatch(setUser(session));
+			return { ok: true, user: session };
+		} catch (err) {
+			return { ok: false, error: err.message || "Google login failed." };
+		}
+	};
+
 export const signup =
 	({ email, password, referralCode }) =>
 	async () => {

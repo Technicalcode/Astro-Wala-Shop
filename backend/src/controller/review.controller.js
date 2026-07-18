@@ -79,7 +79,10 @@ const findPurchasedOrder = async (userId, productId) =>
     user: userId,
     "items.product": productId,
     orderStatus: { $in: PURCHASED_ORDER_STATUSES },
-  }).sort({ createdAt: -1 });
+  })
+    .sort({ createdAt: -1 })
+    .select("_id")
+    .lean();
 
 export const GetProductReviews = async (req, res) => {
   try {
@@ -98,7 +101,8 @@ export const GetProductReviews = async (req, res) => {
     })
       .populate("user", "email")
       .populate("product", "name image")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     const summary = await getReviewSummary(productId);
 
@@ -131,7 +135,8 @@ export const GetReviewEligibility = async (req, res) => {
       findPurchasedOrder(userId, productId),
       ReviewModel.findOne({ user: userId, product: productId, status: "published" })
         .populate("user", "email")
-        .populate("product", "name image"),
+        .populate("product", "name image")
+        .lean(),
     ]);
 
     return res.status(200).json({
@@ -188,7 +193,7 @@ export const CreateOrUpdateReview = async (req, res) => {
     }
 
     const [product, order] = await Promise.all([
-      ProductModel.findById(productId),
+      ProductModel.findById(productId).select("_id").lean(),
       findPurchasedOrder(userId, productId),
     ]);
 
@@ -229,7 +234,8 @@ export const CreateOrUpdateReview = async (req, res) => {
       },
     )
       .populate("user", "email")
-      .populate("product", "name image");
+      .populate("product", "name image")
+      .lean();
 
     const summary = await getReviewSummary(productId);
 
@@ -252,7 +258,8 @@ export const GetMyReviews = async (req, res) => {
     const reviews = await ReviewModel.find({ user: req.user.id })
       .populate("user", "email")
       .populate("product", "name image")
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -300,7 +307,8 @@ export const UpdateReview = async (req, res) => {
       { returnDocument: "after", runValidators: true },
     )
       .populate("user", "email")
-      .populate("product", "name image");
+      .populate("product", "name image")
+      .lean();
 
     if (!review) {
       return res.status(404).json({
@@ -383,7 +391,8 @@ export const GetAdminReviews = async (req, res) => {
         populate: { path: "category_id", select: "name" },
       })
       .populate("order", "_id orderStatus createdAt")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     if (search) {
       const query = String(search).toLowerCase();
@@ -430,7 +439,8 @@ export const UpdateAdminReviewStatus = async (req, res) => {
         select: "name image brand category_id",
         populate: { path: "category_id", select: "name" },
       })
-      .populate("order", "_id orderStatus createdAt");
+      .populate("order", "_id orderStatus createdAt")
+      .lean();
 
     if (!review) {
       return res.status(404).json({

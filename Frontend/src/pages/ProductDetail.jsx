@@ -463,7 +463,7 @@ export default function ProductDetail() {
             {displayMrp > displayPrice && (
               <>
                 <Editable as="span" id="pd-mrp" kind="button" label="MRP (strikethrough)"
-                  className="text-gray-400 line-through">
+                  className="text-gray-600 line-through">
                   ₹{displayMrp.toLocaleString("en-IN")}
                 </Editable>
                 <Editable as="span" id="pd-discount" kind="button" label="Discount % Text"

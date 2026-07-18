@@ -192,7 +192,7 @@ export const CreateProduct = async (req, res) => {
 
 export const GetAllProduct = async (req, res) => {
   try {
-    const product = await productModel.find().populate("category_id");
+    const product = await productModel.find().populate("category_id").lean();
     if (!product) {
       return res.status(400).json({
         message: "Product not found",
@@ -214,7 +214,8 @@ export const GetProductById = async (req, res) => {
   try {
     const product = await productModel
       .findById(req.params.id)
-      .populate("category_id");
+      .populate("category_id")
+      .lean();
     if (!product) {
       return res.status(400).json({
         message: "Product not found",
@@ -222,7 +223,10 @@ export const GetProductById = async (req, res) => {
     }
 
     product.viewCount = (product.viewCount || 0) + 1;
-    await product.save();
+    await productModel.updateOne(
+      { _id: req.params.id },
+      { $inc: { viewCount: 1 } },
+    );
     return res.status(200).json({
       message: "Product found successfully",
       data: await attachReviewSummary(product),
@@ -238,7 +242,9 @@ export const GetProductById = async (req, res) => {
 export const GetProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const products = await Product.find({ category_id: categoryId }).populate("category_id");
+    const products = await Product.find({ category_id: categoryId })
+      .populate("category_id")
+      .lean();
     const enrichedProducts = await attachReviewSummary(products);
 
     return res.status(200).json({

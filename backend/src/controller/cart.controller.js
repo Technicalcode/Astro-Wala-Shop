@@ -5,6 +5,7 @@ import ProductModel from "../Model/product.model.js";
 const ADMIN_PURCHASE_ROLES = ["admin", "superAdmin", "orderManager"];
 const ADMIN_PURCHASE_MESSAGE =
   "Admin accounts cannot add products to cart or place orders. Please use a customer account.";
+const CART_PRODUCT_SELECT = "name image price mrp brand category_id stock";
 
 const assertCustomerCanPurchase = (user = {}) => {
   if (ADMIN_PURCHASE_ROLES.includes(user.role)) {
@@ -49,6 +50,7 @@ const getOrCreateCart = async (userId) => {
 const populateCart = async (cart) => {
   await cart.populate({
     path: "items.product",
+    select: CART_PRODUCT_SELECT,
     populate: { path: "category_id", select: "name" },
   });
 
@@ -98,7 +100,9 @@ const addItemsToCart = async (userId, items) => {
       throw error;
     }
 
-    const product = await ProductModel.findById(productId);
+    const product = await ProductModel.findById(productId).select(
+      "name price mrp stock",
+    );
     if (!product) {
       const error = new Error("Product not found");
       error.status = 404;
@@ -233,7 +237,9 @@ export const updateQuantity = async (req, res) => {
       });
     }
 
-    const product = await ProductModel.findById(cartItem.product);
+    const product = await ProductModel.findById(cartItem.product).select(
+      "name stock",
+    );
     if (!product) {
       return res.status(404).json({
         success: false,

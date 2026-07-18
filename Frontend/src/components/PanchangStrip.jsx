@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Sun, Moon, Clock, AlertTriangle } from "lucide-react";
 import { todayPanchang, zodiacSigns, getDailyHoroscope } from "../data/panchang";
 import Editable from "./editable/Editable";
 
-export default function PanchangStrip() {
+function PanchangStrip() {
   const [activeSign, setActiveSign] = useState("aries");
 
   return (
@@ -128,3 +128,5 @@ export default function PanchangStrip() {
     </div>
   );
 }
+
+export default memo(PanchangStrip);

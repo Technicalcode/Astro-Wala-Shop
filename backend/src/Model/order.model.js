@@ -205,5 +205,13 @@ OrderSchema.index(
   { user: 1, idempotencyKey: 1 },
   { unique: true, partialFilterExpression: { idempotencyKey: { $type: "string" } } },
 );
+OrderSchema.index({ user: 1, createdAt: -1 });
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({
+  user: 1,
+  "items.product": 1,
+  orderStatus: 1,
+  createdAt: -1,
+});
 
 export default mongoose.model("orders", OrderSchema);

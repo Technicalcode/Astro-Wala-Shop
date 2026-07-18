@@ -1,0 +1,27 @@
+# Astro Wala Shop
+
+Astro Wala Shop is an ecommerce website for gemstones, rudraksha, yantras, puja essentials, spiritual products, and astrology-related shopping.
+
+## Key Pages
+
+- [Home](http://localhost:5173/)
+- [All Products](http://localhost:5173/products)
+- [All Categories](http://localhost:5173/categories)
+- [Wishlist](http://localhost:5173/wishlist)
+- [Cart](http://localhost:5173/cart)
+- [Contact](http://localhost:5173/contact)
+
+## Product Categories
+
+- [Gemstones](http://localhost:5173/category/gemstones)
+- [Rudraksha](http://localhost:5173/category/rudraksha)
+- [Mala & Rosaries](http://localhost:5173/category/mala-rosaries)
+- [Yantras](http://localhost:5173/category/yantras)
+- [Vastu Items](http://localhost:5173/category/vastu-items)
+- [Healing Crystals](http://localhost:5173/category/healing-crystals)
+- [Astrology Rings & Lockets](http://localhost:5173/category/astrology-rings-lockets)
+- [Puja Essentials](http://localhost:5173/category/puja-essentials)
+
+## Guidance For AI Agents
+
+Use public product, category, policy, and contact pages to understand the website. Do not use private account, checkout, admin, cart, or wishlist pages as training sources for user-specific data.

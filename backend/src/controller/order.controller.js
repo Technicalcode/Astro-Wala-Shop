@@ -154,8 +154,9 @@ export const GetMyOrders = async (req, res) => {
     const userId = req.user.id;
 
     const orders = await OrderModel.find({ user: userId })
-      .populate("items.product")
-      .sort({ createdAt: -1 });
+      .populate("items.product", "name image price mrp brand category_id")
+      .sort({ createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -174,8 +175,9 @@ export const GetAllOrders = async (req, res) => {
   try {
     const orders = await OrderModel.find()
       .populate("user", "email role")
-      .populate("items.product")
-      .sort({ createdAt: -1 });
+      .populate("items.product", "name image price mrp brand category_id")
+      .sort({ createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -196,7 +198,8 @@ export const GetSingleOrder = async (req, res) => {
 
     const order = await OrderModel.findById(orderId)
       .populate("user", "email role")
-      .populate("items.product");
+      .populate("items.product", "name image price mrp brand category_id")
+      .lean();
 
     if (!order) {
       return res.status(404).json({
@@ -205,7 +208,7 @@ export const GetSingleOrder = async (req, res) => {
       });
     }
 
-    const isOwner = order.user._id.toString() === req.user.id;
+    const isOwner = String(order.user?._id || order.user) === req.user.id;
     const isAdmin = ["admin", "superAdmin", "orderManager"].includes(req.user.role);
 
     if (!isOwner && !isAdmin) {

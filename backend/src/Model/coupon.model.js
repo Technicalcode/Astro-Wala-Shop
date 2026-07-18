@@ -142,4 +142,8 @@ couponSchema.pre("validate", function () {
   this.usage = Array.isArray(this.usedBy) ? this.usedBy.length : this.usage || 0;
 });
 
+couponSchema.index({ isActive: 1, startDate: 1, expireDate: 1 });
+couponSchema.index({ isActive: 1, assignedUser: 1, expireDate: 1 });
+couponSchema.index({ createdAt: -1 });
+
 export default mongoose.model("CouponModel", couponSchema);

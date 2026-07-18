@@ -247,7 +247,7 @@ export default function AdminMostViewed() {
                             <td className="py-5 px-6 text-right whitespace-nowrap">
                               <div className="inline-flex flex-col items-end">
                                 <span className="text-gray-900 font-bold text-lg leading-tight">{formatCurrency(product.price)}</span>
-                                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider line-through">MRP {formatCurrency(product.mrp || product.price)}</span>
+                                <span className="text-gray-600 font-medium text-[10px] uppercase tracking-wider line-through">MRP {formatCurrency(product.mrp || product.price)}</span>
                               </div>
                             </td>
                           </tr>

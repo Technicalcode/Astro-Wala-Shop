@@ -79,7 +79,7 @@ export default function FomoNotification() {
                 : toast.product.name}
             </Link>
           </p>
-          <p className="text-[10.5px] text-gray-400 mt-0.5">{toast.minutesAgo} mins ago</p>
+          <p className="text-[10.5px] text-gray-700 mt-0.5">{toast.minutesAgo} mins ago</p>
         </div>
         <button
           onClick={() => {
@@ -87,7 +87,7 @@ export default function FomoNotification() {
             setDismissed(true);
           }}
           aria-label="Dismiss notification"
-          className="text-gray-300 hover:text-gray-500 shrink-0"
+          className="text-gray-600 hover:text-gray-800 shrink-0"
         >
           <X size={14} />
         </button>

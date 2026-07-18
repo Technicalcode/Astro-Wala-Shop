@@ -129,5 +129,6 @@ const returnSchema = new mongoose.Schema(
 
 returnSchema.index({ order: 1, product: 1, user: 1 }, { unique: true });
 returnSchema.index({ createdAt: -1, status: 1 });
+returnSchema.index({ user: 1, createdAt: -1 });
 
 export default mongoose.model("ReturnRequest", returnSchema);

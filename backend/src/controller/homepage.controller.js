@@ -17,7 +17,7 @@ export const GetHomepageSettings = async (req, res) => {
     const setting = await HomepageSetting.findOne({ key: "homepage" }).populate(
       "bestsellerCategory",
       "name",
-    );
+    ).lean();
 
     return res.status(200).json({
       success: true,

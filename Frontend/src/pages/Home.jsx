@@ -1,15 +1,16 @@
 import { Helmet } from "react-helmet-async";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import BannerCarousel from "../components/BannerCarousel";
 import PanchangStrip from "../components/PanchangStrip";
 import CategoryGrid from "../components/CategoryGrid";
 import ProductRail from "../components/ProductRail";
-import WhyChooseUs from "../components/WhyChooseUs";
-import TestimonialsSection from "../components/TestimonialsSection";
 import { useSelector } from "react-redux";
 import { selectAllProducts, selectProductsLoading } from "../store/productsSlice";
 import { selectCategories } from "../store/categoriesSlice";
 import { backendUrl, readApiResponse, trackedFetch } from "../config/api";
+
+const WhyChooseUs = lazy(() => import("../components/WhyChooseUs"));
+const TestimonialsSection = lazy(() => import("../components/TestimonialsSection"));
 
 export default function Home() {
   const allProducts = useSelector(selectAllProducts);
@@ -61,25 +62,49 @@ export default function Home() {
     };
   }, []);
 
-  const bestsellerCategory = categories.find(
-    (category) => category.id === bestsellerCategoryId,
+  const bestsellerCategory = useMemo(
+    () => categories.find((category) => category.id === bestsellerCategoryId),
+    [categories, bestsellerCategoryId],
   );
-  const bestsellers = allProducts
-    .filter(
-      (product) =>
-        product.bestseller &&
-        (!bestsellerCategoryId || product.category === bestsellerCategoryId),
-    )
-    .slice(0, 10);
-  const categoryRails = categories
-    .map((category) => ({
-      ...category,
-      products: allProducts.filter((product) => product.category === category.id),
-    }))
-    .filter(
-      (category) =>
-        category.products.length > 0 && category.id !== bestsellerCategoryId,
-    );
+
+  const bestsellers = useMemo(
+    () =>
+      allProducts
+        .filter(
+          (product) =>
+            product.bestseller &&
+            (!bestsellerCategoryId || product.category === bestsellerCategoryId),
+        )
+        .slice(0, 10),
+    [allProducts, bestsellerCategoryId],
+  );
+
+  const productsByCategory = useMemo(() => {
+    const groupedProducts = new Map();
+
+    allProducts.forEach((product) => {
+      if (!groupedProducts.has(product.category)) {
+        groupedProducts.set(product.category, []);
+      }
+      groupedProducts.get(product.category).push(product);
+    });
+
+    return groupedProducts;
+  }, [allProducts]);
+
+  const categoryRails = useMemo(
+    () =>
+      categories
+        .map((category) => ({
+          ...category,
+          products: productsByCategory.get(category.id) || [],
+        }))
+        .filter(
+          (category) =>
+            category.products.length > 0 && category.id !== bestsellerCategoryId,
+        ),
+    [categories, productsByCategory, bestsellerCategoryId],
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -160,13 +185,13 @@ export default function Home() {
             <div className="absolute inset-0 border-4 border-brand/20 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-gray-500 font-medium animate-pulse tracking-wide">Loading more collections...</p>
+          <p className="text-gray-900 font-medium tracking-wide">Loading more collections...</p>
         </div>
       ) : (
-        <>
+        <Suspense fallback={null}>
           <WhyChooseUs />
           <TestimonialsSection />
-        </>
+        </Suspense>
       )}
       </div>
     </>

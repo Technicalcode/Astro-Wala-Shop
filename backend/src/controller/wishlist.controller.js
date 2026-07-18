@@ -2,9 +2,13 @@ import Wishlist from "../Model/Wishlist.model.js";
 import mongoose from "mongoose";
 import ProductModel from "../Model/product.model.js";
 
+const WISHLIST_PRODUCT_SELECT =
+  "name image price mrp brand category_id stock description producthightlight bestseller";
+
 const populateWishlist = async (wishlist) => {
   await wishlist.populate({
     path: "products",
+    select: WISHLIST_PRODUCT_SELECT,
     populate: { path: "category_id", select: "name" },
   });
 
@@ -44,7 +48,7 @@ export const addToWishlist = async (req, res) => {
       });
     }
 
-    const product = await ProductModel.findById(productId);
+    const product = await ProductModel.exists({ _id: productId });
     if (!product) {
       return res.status(404).json({
         success: false,

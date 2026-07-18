@@ -52,4 +52,6 @@ inventorySchema.pre("save", function () {
   this.status = this.stock === 0 ? "Out of Stock" : "In Stock";
 });
 
+inventorySchema.index({ updatedAt: -1 });
+
 export default mongoose.model("InventoryModel", inventorySchema);

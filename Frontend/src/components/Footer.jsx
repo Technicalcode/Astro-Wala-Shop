@@ -77,7 +77,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
         {columns.map((col) => (
           <div key={col.title}>
-            <Editable as="h4" kind="button" group="footer-bg" label="Footer" className="text-gray-500 text-xs font-semibold mb-3 tracking-wide">
+            <Editable as="h4" kind="button" group="footer-bg" label="Footer" className="text-gray-300 text-xs font-semibold mb-3 tracking-wide">
               {col.title}
             </Editable>
             <ul className="space-y-2">
@@ -95,7 +95,7 @@ export default function Footer() {
         ))}
 
         <div>
-          <Editable as="h4" kind="button" group="footer-bg" label="Footer" className="text-gray-500 text-xs font-semibold mb-3 tracking-wide">
+          <Editable as="h4" kind="button" group="footer-bg" label="Footer" className="text-gray-300 text-xs font-semibold mb-3 tracking-wide">
             GET IN TOUCH
           </Editable>
           <ul className="space-y-2.5 text-gray-400">

@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { fetchAllOrders, selectAllOrders, updateOrderStatus } from "../../store/ordersSlice";
 import Editable from "../../components/editable/Editable";
 import { Download, Search } from "lucide-react";
-import { exportRowsToExcel } from "../../utils/excelExport";
 
 const STATUSES = ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled"];
 
@@ -99,6 +98,7 @@ export default function AdminOrders() {
 
   const downloadOrdersExcel = async () => {
     setExporting(true);
+    const { exportRowsToExcel } = await import("../../utils/excelExport");
     await exportRowsToExcel({
       fileName: "orders",
       sheetName: "Orders",

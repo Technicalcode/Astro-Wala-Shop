@@ -4,7 +4,6 @@ import { selectAllProducts, updateProduct } from "../../store/productsSlice";
 import { selectCategories } from "../../store/categoriesSlice";
 import { Search, AlertCircle, TrendingDown, Save, Download } from "lucide-react";
 import Editable from "../../components/editable/Editable";
-import { exportRowsToExcel } from "../../utils/excelExport";
 import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 
 const LOW_STOCK_LIMIT = 5;
@@ -140,6 +139,7 @@ export default function AdminInventory() {
 
   const downloadInventoryExcel = async () => {
     setExporting(true);
+    const { exportRowsToExcel } = await import("../../utils/excelExport");
     const exportRows = filteredProducts.map((product) => ({
       ...product,
       exportStock: edits[product.id] !== undefined ? edits[product.id] : product.stock,

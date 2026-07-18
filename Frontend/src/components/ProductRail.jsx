@@ -1,10 +1,10 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, ChevronsRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import Editable from "./editable/Editable";
 
-export default function ProductRail({ title, subtitle, products, viewAllTo, groupId }) {
+function ProductRail({ title, subtitle, products, viewAllTo, groupId }) {
   const scrollRef = useRef(null);
   const railGroup = groupId ? `product-frame-${groupId}` : "product-frame";
   const titleGroup = groupId ? `product-frame-title-${groupId}` : "product-frame-title";
@@ -77,3 +77,5 @@ export default function ProductRail({ title, subtitle, products, viewAllTo, grou
     </Editable>
   );
 }
+
+export default memo(ProductRail);

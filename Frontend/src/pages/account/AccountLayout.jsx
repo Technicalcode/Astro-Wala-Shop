@@ -1,13 +1,91 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { User, MapPin, Package, LogOut, Undo2, MessageSquare, Wallet } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 import { logout } from "../../store/authSlice";
 import Editable from "../../components/editable/Editable";
+import { backendUrl, fetchWithAuth, readApiResponse } from "../../config/api";
+import { showErrorPopup, showInfoPopup } from "../../utils/notificationCenter";
+
+const getReturnProductName = (returnRequest) =>
+  returnRequest?.productSnapshot?.name || returnRequest?.product?.name || "this item";
+
+const RETURN_STATUS_NOTICES = {
+  approved: {
+    title: "Return accepted",
+    message: (name) => `${name} return request has been accepted successfully.`,
+    type: "info",
+  },
+  pickup_scheduled: {
+    title: "Return pickup scheduled",
+    message: (name) => `Courier pickup has been scheduled for ${name}. Please keep the return item ready for the shipper.`,
+    type: "info",
+  },
+  received: {
+    title: "Return item received",
+    message: (name) => `${name} has been received by the seller team. Refund processing will start soon.`,
+    type: "info",
+  },
+  refunded: {
+    title: "Refund processed",
+    message: (name) => `${name} refund has been processed successfully.`,
+    type: "info",
+  },
+  rejected: {
+    title: "Return request rejected",
+    message: (name, returnRequest) =>
+      `${name} return request was rejected.${returnRequest.adminNote ? ` Reason: ${returnRequest.adminNote}` : ""}`,
+    type: "error",
+  },
+};
 
 export default function AccountLayout() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || user.role === "admin") return undefined;
+
+    let ignore = false;
+
+    const checkReturnUpdates = async () => {
+      try {
+        const response = await fetchWithAuth(`${backendUrl}/api/v1/returns/my`);
+        const data = await readApiResponse(response);
+        if (!response.ok || ignore) return;
+
+        (data.data || [])
+          .filter((returnRequest) => RETURN_STATUS_NOTICES[returnRequest.status])
+          .forEach((returnRequest) => {
+            const noticeKey = `return-${returnRequest.status}-notice:${returnRequest._id || returnRequest.id}`;
+            if (sessionStorage.getItem(noticeKey)) return;
+
+            const notice = RETURN_STATUS_NOTICES[returnRequest.status];
+            const productName = getReturnProductName(returnRequest);
+            sessionStorage.setItem(noticeKey, "shown");
+
+            if (notice.type === "error") {
+              showErrorPopup(notice.message(productName, returnRequest), { title: notice.title });
+            } else {
+              showInfoPopup(notice.message(productName, returnRequest), { title: notice.title });
+            }
+          });
+      } catch {
+        // The shared API handler shows connection errors when needed.
+      }
+    };
+
+    checkReturnUpdates();
+    const interval = window.setInterval(checkReturnUpdates, 30000);
+    window.addEventListener("focus", checkReturnUpdates);
+
+    return () => {
+      ignore = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", checkReturnUpdates);
+    };
+  }, [user]);
 
   const handleLogout = () => {
     dispatch(logout());

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ImageIcon, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,7 +11,8 @@ import {
   updateBanner,
 } from "../../store/bannerSlice";
 import { fileToCompressedDataUrl } from "../../utils/imageUtils";
-import ImageEditorModal from "../../components/ImageEditorModal";
+
+const ImageEditorModal = lazy(() => import("../../components/ImageEditorModal"));
 
 const emptyForm = {
   title: "",
@@ -526,12 +527,14 @@ export default function AdminBanners() {
       {/* Form Modal (End) */}
       
       {editingImageSrc && (
-        <ImageEditorModal
-          imageSrc={editingImageSrc}
-          defaultAspect="original" // Match the original banner dimensions exactly
-          onSave={handleSaveEditedImage}
-          onCancel={() => setEditingImageSrc(null)}
-        />
+        <Suspense fallback={null}>
+          <ImageEditorModal
+            imageSrc={editingImageSrc}
+            defaultAspect="original" // Match the original banner dimensions exactly
+            onSave={handleSaveEditedImage}
+            onCancel={() => setEditingImageSrc(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

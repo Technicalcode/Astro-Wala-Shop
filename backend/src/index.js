@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cros from "cors";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import auth from "./router/auth.routes.js";
 import dns from "dns";
@@ -29,7 +31,8 @@ import themeRoutes from "./router/theme.routes.js";
 import userprofile from "../src/router/User_profile.routes.js";
 import wishlist from "./router/wishlist.routes.js";
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, "../.env") });
 
 await db();
 

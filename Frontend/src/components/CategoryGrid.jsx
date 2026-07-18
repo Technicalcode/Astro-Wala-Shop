@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as Icons from "lucide-react";
@@ -8,7 +8,7 @@ import Editable from "./editable/Editable";
 import { COMMON_CLOUDINARY_IMAGE_URL } from "../config/api";
 import PageLoadingState from "./PageLoadingState";
 
-export default function CategoryGrid() {
+function CategoryGrid() {
   const categories = useSelector(selectCategories);
   const loading = useSelector(selectCategoriesLoading);
   const scrollRef = useRef(null);
@@ -35,14 +35,19 @@ export default function CategoryGrid() {
     }
   };
 
+  const sortedCategories = useMemo(
+    () =>
+      [...categories].sort((a, b) => {
+        if (a.bestseller === b.bestseller) return 0;
+        return a.bestseller ? -1 : 1;
+      }),
+    [categories],
+  );
+
   if (loading && categories.length === 0) {
     return <PageLoadingState label="Loading categories..." />;
   }
 
-  const sortedCategories = [...categories].sort((a, b) => {
-    if (a.bestseller === b.bestseller) return 0;
-    return a.bestseller ? -1 : 1;
-  });
   const isScrollableMobile = sortedCategories.length > 12;
   const mobileGridClasses = isScrollableMobile 
     ? "grid-rows-3 grid-flow-col overflow-x-auto" 
@@ -61,6 +66,8 @@ export default function CategoryGrid() {
     >
       {canScrollLeft && (
         <button 
+          type="button"
+          aria-label="Scroll categories left"
           onClick={() => scrollBy(-400)}
           className={`absolute left-1 md:left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-gray-200 rounded-full items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.1)] text-gray-700 hover:text-brand hover:border-brand z-10 transition-all md:opacity-0 md:group-hover/grid:opacity-100 ${isScrollableMobile ? 'flex' : 'hidden md:flex'}`}
         >
@@ -117,6 +124,8 @@ export default function CategoryGrid() {
 
       {canScrollRight && (
         <button 
+          type="button"
+          aria-label="Scroll categories right"
           onClick={() => scrollBy(400)}
           className={`absolute right-1 md:right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-gray-200 rounded-full items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.1)] text-gray-700 hover:text-brand hover:border-brand z-10 transition-all md:opacity-0 md:group-hover/grid:opacity-100 ${isScrollableMobile ? 'flex' : 'hidden md:flex'}`}
         >
@@ -126,3 +135,5 @@ export default function CategoryGrid() {
     </Editable>
   );
 }
+
+export default memo(CategoryGrid);

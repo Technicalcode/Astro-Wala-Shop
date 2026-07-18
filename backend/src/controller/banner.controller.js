@@ -88,7 +88,9 @@ export const GetAllBanners = async (req, res) => {
     const includeInactive =
       String(req.query.includeInactive || "").toLowerCase() === "true";
     const filter = includeInactive ? {} : { isActive: true };
-    const banners = await Banner.find(filter).sort({ order: 1, createdAt: -1 });
+    const banners = await Banner.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       message: "Banners fetched successfully",
@@ -101,7 +103,7 @@ export const GetAllBanners = async (req, res) => {
 
 export const GetBannerById = async (req, res) => {
   try {
-    const banner = await Banner.findById(req.params.id);
+    const banner = await Banner.findById(req.params.id).lean();
 
     if (!banner) {
       return res.status(404).json({ message: "Banner not found" });

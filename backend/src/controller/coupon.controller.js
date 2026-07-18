@@ -37,7 +37,7 @@ const findUserByEmail = async (email) => {
 
   return UserModel.findOne({
     email: { $regex: `^${escapeRegex(normalizedEmail)}$`, $options: "i" },
-  });
+  }).select("email");
 };
 
 const getRefId = (value) => {
@@ -140,7 +140,7 @@ const buildCouponPayload = async (body = {}, existing = {}) => {
         throw couponError("Invalid category id");
       }
 
-      const category = await CategoryModel.findById(categoryId);
+      const category = await CategoryModel.findById(categoryId).select("_id");
       if (!category) {
         throw couponError("Category not found", 404);
       }
@@ -154,7 +154,7 @@ const buildCouponPayload = async (body = {}, existing = {}) => {
         throw couponError("Invalid product id");
       }
 
-      const product = await ProductModel.findById(productId);
+      const product = await ProductModel.findById(productId).select("_id");
       if (!product) {
         throw couponError("Product not found", 404);
       }
@@ -226,7 +226,8 @@ export const AdminGetCoupons = async (req, res) => {
       .populate("product_id", "name image brand price")
       .populate("category_id", "name")
       .populate("assignedUser", "email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -315,7 +316,9 @@ export const GetAvailableCoupons = async (req, res) => {
       .filter((id) => mongoose.Types.ObjectId.isValid(id));
     const productsInCart =
       productIds.length > 0
-        ? await ProductModel.find({ _id: { $in: productIds } }).select("category_id")
+        ? await ProductModel.find({ _id: { $in: productIds } })
+            .select("category_id")
+            .lean()
         : [];
     const categoryIds = [
       ...new Set(productsInCart.map((product) => String(product.category_id)).filter(Boolean)),
@@ -351,7 +354,8 @@ export const GetAvailableCoupons = async (req, res) => {
       .populate("product_id", "name image brand price")
       .populate("category_id", "name")
       .populate("assignedUser", "email")
-      .sort({ expireDate: 1 });
+      .sort({ expireDate: 1 })
+      .lean();
 
     const availableCoupons = coupons.filter((coupon) => {
       const usage = coupon.usedBy.find((entry) => String(entry.user) === String(req.user.id));

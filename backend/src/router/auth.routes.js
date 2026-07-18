@@ -6,6 +6,7 @@ import {
 	ForgetPassword,
 	ResetPassword,
 	EmailVerfily,
+	GoogleLogin,
 	Logout,
 } from "../controller/auth.controller.js";
 
@@ -21,6 +22,7 @@ router.post("/create", CreateUser);
 router.post("/email-verify", EmailVerfily);
 
 router.post("/login", login);
+router.post("/google", GoogleLogin);
 router.post("/logout", TokenVerify, Logout);
 
 router.post("/forgot-password", ForgetPassword);

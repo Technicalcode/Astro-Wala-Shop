@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import { Plus, Pencil, Trash2, X, Upload, ImageOff, Download, Search } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectAllProducts, createProduct, updateProduct, deleteProduct } from "../../store/productsSlice";
 import { selectCategories } from "../../store/categoriesSlice";
 import { fileToCompressedDataUrl } from "../../utils/imageUtils";
-import ImageEditorModal from "../../components/ImageEditorModal";
 import Editable from "../../components/editable/Editable";
-import { exportRowsToExcel } from "../../utils/excelExport";
 import { getCategoryDisplayName } from "../../utils/categoryDisplay";
+
+const ImageEditorModal = lazy(() => import("../../components/ImageEditorModal"));
 
 const emptyForm = {
   name: "",
@@ -153,6 +153,7 @@ export default function AdminProducts() {
 
   const downloadProductsExcel = async () => {
     setExporting(true);
+    const { exportRowsToExcel } = await import("../../utils/excelExport");
     await exportRowsToExcel({
       fileName: "products",
       sheetName: "Products",
@@ -624,7 +625,7 @@ export default function AdminProducts() {
                       </Editable>
                       {p.mrp > p.price && (
                         <div className="flex items-center gap-2">
-                           <span className="text-xs text-gray-400 font-medium line-through">₹{p.mrp.toLocaleString("en-IN")}</span>
+                           <span className="text-xs text-gray-600 font-medium line-through">₹{p.mrp.toLocaleString("en-IN")}</span>
                            <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">
                              {Math.round(((p.mrp - p.price) / p.mrp) * 100)}% Off
                            </span>
@@ -977,15 +978,17 @@ export default function AdminProducts() {
             </form>
           </div>
           {editingImageSrc && (
-        <ImageEditorModal
-          imageSrc={editingImageSrc}
-          onSave={handleSaveEditedImage}
-          onCancel={() => {
-            setEditingImageSrc(null);
-            setEditingImageIndex(null);
-          }}
-        />
-      )}
+            <Suspense fallback={null}>
+              <ImageEditorModal
+                imageSrc={editingImageSrc}
+                onSave={handleSaveEditedImage}
+                onCancel={() => {
+                  setEditingImageSrc(null);
+                  setEditingImageIndex(null);
+                }}
+              />
+            </Suspense>
+          )}
     </div>
       )}
     </div>

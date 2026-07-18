@@ -82,7 +82,7 @@ function WishlistCard({ product, onRemove }) {
             ₹{Number(product.price).toLocaleString("en-IN")}
           </Editable>
           {product.mrp > product.price && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-xs text-gray-600 line-through">
               ₹{Number(product.mrp).toLocaleString("en-IN")}
             </span>
           )}

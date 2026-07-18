@@ -215,7 +215,7 @@ export default function Cart() {
                 </Editable>
                 {item.mrp > item.price && (
                   <>
-                    <p className="text-xs text-gray-400 line-through">
+                    <p className="text-xs text-gray-600 line-through">
                       ₹{(item.mrp * item.qty).toLocaleString("en-IN")}
                     </p>
                     <Editable

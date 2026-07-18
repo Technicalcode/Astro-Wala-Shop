@@ -62,7 +62,7 @@ export const CreateCategory = async (req, res) => {
 
 export const GetAllCategory = async (req, res) => {
   try {
-    const cate = await catmodel.find();
+    const cate = await catmodel.find().lean();
 
     if (cate.length === 0) {
       return res.status(200).json({

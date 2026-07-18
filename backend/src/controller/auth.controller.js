@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { createVerify } from "crypto";
 
 import emailverificationmodel from "../Model/emailverification.model.js";
 
@@ -35,6 +36,12 @@ import ReferralSetting from "../Model/ReferralSetting.model.js";
 const normalizeEmail = (email = "") => String(email).trim().toLowerCase();
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
+const GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v1/certs";
+const GOOGLE_ISSUERS = new Set(["accounts.google.com", "https://accounts.google.com"]);
+let googleCertCache = {
+	expiresAt: 0,
+	certs: {},
+};
 
 const escapeRegex = (value = "") =>
 	value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -70,6 +77,107 @@ const verifyStoredPassword = async (password, storedPassword) => {
 	} catch {
 		return false;
 	}
+};
+
+const base64UrlToBuffer = (value = "") =>
+	Buffer.from(value.replace(/-/g, "+").replace(/_/g, "/"), "base64");
+
+const decodeJwtPart = (value = "") =>
+	JSON.parse(base64UrlToBuffer(value).toString("utf8"));
+
+const getGoogleCerts = async () => {
+	if (googleCertCache.expiresAt > Date.now() && Object.keys(googleCertCache.certs).length) {
+		return googleCertCache.certs;
+	}
+
+	const response = await fetch(GOOGLE_CERTS_URL);
+	if (!response.ok) {
+		throw new Error("Could not fetch Google public certificates");
+	}
+
+	const cacheControl = response.headers.get("cache-control") || "";
+	const maxAgeMatch = cacheControl.match(/max-age=(\d+)/i);
+	const maxAgeMs = maxAgeMatch ? Number(maxAgeMatch[1]) * 1000 : 60 * 60 * 1000;
+	const certs = await response.json();
+	googleCertCache = {
+		certs,
+		expiresAt: Date.now() + maxAgeMs,
+	};
+
+	return certs;
+};
+
+const verifyGoogleCredential = async (credential) => {
+	const clientId = process.env.GOOGLE_CLIENT_ID;
+	if (!clientId) {
+		throw new Error("Google login is not configured on the server");
+	}
+
+	const parts = String(credential || "").split(".");
+	if (parts.length !== 3) throw new Error("Invalid Google credential");
+
+	const [encodedHeader, encodedPayload, encodedSignature] = parts;
+	const header = decodeJwtPart(encodedHeader);
+	const payload = decodeJwtPart(encodedPayload);
+
+	if (header.alg !== "RS256" || !header.kid) {
+		throw new Error("Invalid Google token header");
+	}
+
+	const certs = await getGoogleCerts();
+	const cert = certs[header.kid];
+	if (!cert) throw new Error("Google certificate not found for this token");
+
+	const verifier = createVerify("RSA-SHA256");
+	verifier.update(`${encodedHeader}.${encodedPayload}`);
+	verifier.end();
+
+	const isValidSignature = verifier.verify(cert, base64UrlToBuffer(encodedSignature));
+	if (!isValidSignature) throw new Error("Invalid Google token signature");
+
+	if (!GOOGLE_ISSUERS.has(payload.iss)) throw new Error("Invalid Google token issuer");
+	if (payload.aud !== clientId) throw new Error("Invalid Google token audience");
+	if (!payload.exp || payload.exp * 1000 <= Date.now()) {
+		throw new Error("Google token has expired");
+	}
+	if (payload.email_verified !== true) {
+		throw new Error("Google account email is not verified");
+	}
+
+	return {
+		email: normalizeEmail(payload.email),
+		name: String(payload.name || "").trim(),
+		firstName: String(payload.given_name || "").trim(),
+		lastName: String(payload.family_name || "").trim(),
+		avatar: String(payload.picture || "").trim(),
+		googleId: String(payload.sub || "").trim(),
+	};
+};
+
+const buildLoginResponse = async (req, res, user) => {
+	const accessToken = generateAccessToken(user.id, user.role);
+	const refreshToken = generateRefreshToken(user.id, user.role);
+	const profile = await UserProfile.findOne({ userid: user.id }).select(
+		"fullName firstName middleName lastName"
+	);
+	const displayName = getProfileDisplayName(profile);
+	const loginActivity = await CreateLoginActivity(req, user.id);
+
+	return res.status(200).json({
+		message: "Login successful",
+		user: {
+			id: user.id,
+			email: user.email,
+			name: displayName,
+			fullName: displayName,
+			role: user.role,
+		},
+		token: {
+			accessToken,
+			refreshToken,
+		},
+		loginActivityId: loginActivity?._id || null,
+	});
 };
 
 export const login = async (req, res) => {
@@ -135,34 +243,70 @@ export const login = async (req, res) => {
 		//     message: "User not verified",
 		//   });
 		// }
-		const accessToken = generateAccessToken(user.id, user.role);
-		const refreshToken = generateRefreshToken(user.id, user.role);
-		const profile = await UserProfile.findOne({ userid: user.id }).select(
-			"fullName firstName middleName lastName"
-		);
-		const displayName = getProfileDisplayName(profile);
-		const loginActivity = await CreateLoginActivity(req, user.id);
-
-		return res.status(200).json({
-			message: "Login successful",
-			user: {
-				id: user.id,
-				email: user.email,
-				name: displayName,
-				fullName: displayName,
-				role: user.role,
-			},
-			token: {
-				accessToken,
-				refreshToken,
-			},
-			loginActivityId: loginActivity?._id || null,
-		});
+		return buildLoginResponse(req, res, user);
 	} catch (ex) {
 		console.error(ex);
 
 		return res.status(500).json({
 			message: ex.message,
+		});
+	}
+};
+
+export const GoogleLogin = async (req, res) => {
+	try {
+		const profile = await verifyGoogleCredential(req.body?.credential);
+		if (!profile.email) {
+			return res.status(400).json({ message: "Google account email was not provided" });
+		}
+
+		let user = await findUserByEmail(profile.email);
+		if (user?.isBlocked === true) {
+			return res.status(403).json({
+				message: "Your account is blocked. Please contact support.",
+			});
+		}
+
+		if (!user) {
+			const randomPassword = await CreateharhPassword(
+				`google:${profile.googleId}:${crypto.randomBytes(24).toString("hex")}`,
+			);
+			user = await UserModel.create({
+				email: profile.email,
+				password: randomPassword,
+				role: "user",
+				isActive: true,
+				isBlocked: false,
+				isVerified: true,
+			});
+		} else {
+			user.isActive = true;
+			user.isVerified = true;
+			await user.save();
+		}
+
+		const existingProfile = await UserProfile.findOne({ userid: user._id });
+		if (!existingProfile) {
+			await UserProfile.create({
+				userid: user._id,
+				referralCode: `ASTRO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+				fullName: profile.name,
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+				avatar: profile.avatar,
+			});
+		} else {
+			if (profile.name && !existingProfile.fullName) existingProfile.fullName = profile.name;
+			if (profile.firstName && !existingProfile.firstName) existingProfile.firstName = profile.firstName;
+			if (profile.lastName && !existingProfile.lastName) existingProfile.lastName = profile.lastName;
+			if (profile.avatar && !existingProfile.avatar) existingProfile.avatar = profile.avatar;
+			await existingProfile.save();
+		}
+
+		return buildLoginResponse(req, res, user);
+	} catch (error) {
+		return res.status(401).json({
+			message: error.message || "Google login failed",
 		});
 	}
 };

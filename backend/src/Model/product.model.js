@@ -76,4 +76,7 @@ const productSchema = new mango.Schema(
   },
 );
 
+productSchema.index({ bestseller: 1, category_id: 1 });
+productSchema.index({ viewCount: -1 });
+
 export default mango.model("ProductModel", productSchema, "products");

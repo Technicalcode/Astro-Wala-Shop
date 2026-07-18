@@ -23,7 +23,7 @@ export const CreateInventory = async (req, res) => {
       });
     }
 
-    const product = await ProductModel.findById(product_id);
+    const product = await ProductModel.findById(product_id).select("stock");
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
@@ -73,7 +73,7 @@ export const CreateInventory = async (req, res) => {
 
 export const InsertMissingInventoryFromProducts = async (req, res) => {
   try {
-    const products = await ProductModel.find();
+    const products = await ProductModel.find().select("stock").lean();
     const insertedInventory = [];
     const skippedProducts = [];
 
@@ -129,7 +129,8 @@ export const GetAllInventory = async (req, res) => {
         select: "name category_id image brand",
         populate: { path: "category_id", select: "name" },
       })
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
 
     inventory = inventory.filter((item) => item.product_id);
 
@@ -162,7 +163,9 @@ export const GetInventoryByProduct = async (req, res) => {
   try {
     const inventory = await InventoryModel.findOne({
       product_id: req.params.productId,
-    }).populate("product_id", "name category_id image brand");
+    })
+      .populate("product_id", "name category_id image brand")
+      .lean();
 
     if (!inventory) {
       return res.status(404).json({
@@ -199,7 +202,7 @@ export const UpdateStock = async (req, res) => {
       });
     }
 
-    const product = await ProductModel.findById(productId);
+    const product = await ProductModel.findById(productId).select("stock");
     if (!product) {
       return res.status(404).json({
         message: "Product not found",

@@ -6,7 +6,7 @@ import { selectUser } from "../../store/authSlice";
 import { ChevronLeft, Download, XCircle, Undo2, CheckCircle2, Truck, PackageCheck, FileText } from "lucide-react";
 import Editable from "../../components/editable/Editable";
 import { showErrorPopup, showInfoPopup } from "../../utils/notificationCenter";
-import { downloadInvoicePdf } from "../../utils/invoicePdf";
+import { backendUrl, fetchWithAuth, readApiResponse } from "../../config/api";
 
 const STEPS = [
   { key: "Confirmed", label: "Order Confirmed", icon: CheckCircle2, desc: "Your order has been placed successfully." },
@@ -20,6 +20,42 @@ const getDeliveryDate = (placedAt) => {
   return new Date(new Date(placedAt).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 };
 
+const getReturnOrderId = (returnRequest) =>
+  String(returnRequest?.order?._id || returnRequest?.order || "");
+
+const getReturnProductId = (returnRequest) =>
+  String(returnRequest?.product?._id || returnRequest?.product || "");
+
+const getReturnProductName = (returnRequest) =>
+  returnRequest?.productSnapshot?.name || returnRequest?.product?.name || "this item";
+
+const RETURN_STATUS_NOTICES = {
+  approved: {
+    title: "Return accepted",
+    message: (name) => `${name} return request has been accepted successfully.`,
+  },
+  pickup_scheduled: {
+    title: "Return pickup scheduled",
+    message: (name) => `Courier pickup has been scheduled for ${name}. Please keep the return item ready for the shipper.`,
+  },
+  received: {
+    title: "Return item received",
+    message: (name) => `${name} has been received by the seller team. Refund processing will start soon.`,
+  },
+  refunded: {
+    title: "Refund processed",
+    message: (name) => `${name} refund has been processed successfully.`,
+  },
+};
+
+const RETURN_BUTTON_LABELS = {
+  pending: "Return Requested",
+  approved: "Return Accepted",
+  pickup_scheduled: "Pickup Scheduled",
+  received: "Item Received",
+  refunded: "Refund Processed",
+};
+
 export default function OrderDetail() {
   const { orderId } = useParams();
   const dispatch = useDispatch();
@@ -27,12 +63,76 @@ export default function OrderDetail() {
   const orders = useSelector(user ? selectOrdersForUser(user.email) : () => []);
   const order = orders.find(o => o.id === orderId);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+  const [returnRequests, setReturnRequests] = useState([]);
+  const [returnForm, setReturnForm] = useState({
+    productId: "",
+    quantity: 1,
+    reason: "Product no longer required",
+    details: "",
+  });
 
   useEffect(() => {
     if (user) dispatch(fetchMyOrders());
   }, [dispatch, user]);
+
+  useEffect(() => {
+    if (!user || !order?.id) return undefined;
+
+    let ignore = false;
+
+    const loadReturnRequests = async () => {
+      try {
+        const response = await fetchWithAuth(`${backendUrl}/api/v1/returns/my`);
+        const data = await readApiResponse(response);
+        if (!response.ok) return;
+
+        const currentOrderReturns = (data.data || []).filter(
+          (returnRequest) => getReturnOrderId(returnRequest) === String(order.id),
+        );
+
+        if (!ignore) setReturnRequests(currentOrderReturns);
+
+        currentOrderReturns
+          .filter((returnRequest) =>
+            ["approved", "pickup_scheduled", "received", "refunded", "rejected"].includes(returnRequest.status),
+          )
+          .forEach((returnRequest) => {
+            const noticeKey = `return-${returnRequest.status}-notice:${returnRequest._id || returnRequest.id}`;
+            if (sessionStorage.getItem(noticeKey)) return;
+
+            sessionStorage.setItem(noticeKey, "shown");
+            if (returnRequest.status === "rejected") {
+              showErrorPopup(
+                `${getReturnProductName(returnRequest)} return request was rejected.${returnRequest.adminNote ? ` Reason: ${returnRequest.adminNote}` : ""}`,
+                { title: "Return request rejected" },
+              );
+            } else {
+              const notice = RETURN_STATUS_NOTICES[returnRequest.status];
+              showInfoPopup(
+                notice.message(getReturnProductName(returnRequest)),
+                { title: notice.title },
+              );
+            }
+          });
+      } catch {
+        // Shared API handler already shows network errors where needed.
+      }
+    };
+
+    loadReturnRequests();
+    const interval = window.setInterval(loadReturnRequests, 30000);
+    window.addEventListener("focus", loadReturnRequests);
+
+    return () => {
+      ignore = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", loadReturnRequests);
+    };
+  }, [order?.id, user]);
 
   if (!order) {
     return <div className="text-center py-10 text-gray-500">Order not found.</div>;
@@ -45,6 +145,13 @@ export default function OrderDetail() {
   const canCancel = ["Pending", "Confirmed"].includes(order.status);
   const canDownloadInvoice = order.status === "Delivered";
   const primaryProductPath = order.items?.[0]?.id ? `/product/${order.items[0].id}` : null;
+  const latestActiveReturn = returnRequests.find((returnRequest) =>
+    ["refunded", "received", "pickup_scheduled", "approved", "pending"].includes(returnRequest.status),
+  );
+  const rejectedReturn = returnRequests.find((returnRequest) => returnRequest.status === "rejected");
+  const pendingReturn = returnRequests.find((returnRequest) =>
+    ["pending", "approved", "pickup_scheduled", "received", "refunded"].includes(returnRequest.status),
+  );
 
   const handleCancel = async () => {
     setIsCancelling(true);
@@ -61,9 +168,10 @@ export default function OrderDetail() {
     showInfoPopup("Your order has been cancelled.", { title: "Order cancelled" });
   };
 
-  const handleInvoiceDownload = () => {
+  const handleInvoiceDownload = async () => {
     try {
       setIsDownloadingInvoice(true);
+      const { downloadInvoicePdf } = await import("../../utils/invoicePdf");
       downloadInvoicePdf(order);
     } catch {
       showErrorPopup("Invoice could not be downloaded. Please try again.", {
@@ -71,6 +179,61 @@ export default function OrderDetail() {
       });
     } finally {
       setIsDownloadingInvoice(false);
+    }
+  };
+
+  const openReturnDialog = () => {
+    const returnedProductIds = new Set(returnRequests.map(getReturnProductId));
+    const firstItem =
+      order.items?.find((item) => !returnedProductIds.has(String(item.id))) ||
+      order.items?.[0];
+    setReturnForm({
+      productId: firstItem?.id || "",
+      quantity: 1,
+      reason: "Product no longer required",
+      details: "",
+    });
+    setShowReturnDialog(true);
+  };
+
+  const selectedReturnItem = order.items.find((item) => item.id === returnForm.productId);
+
+  const handleReturnSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!returnForm.productId) {
+      showErrorPopup("Please select an item to return.", { title: "Return item required" });
+      return;
+    }
+
+    try {
+      setIsSubmittingReturn(true);
+      const response = await fetchWithAuth(`${backendUrl}/api/v1/returns`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          productId: returnForm.productId,
+          quantity: Number(returnForm.quantity) || 1,
+          reason: returnForm.reason,
+          details: returnForm.details,
+        }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) {
+        throw new Error(data.message || "Return request could not be submitted.");
+      }
+
+      setShowReturnDialog(false);
+      showInfoPopup("Your return request has been submitted and is now visible to admin.", {
+        title: "Return requested",
+      });
+    } catch (error) {
+      showErrorPopup(error.message || "Return request could not be submitted.", {
+        title: "Return request failed",
+      });
+    } finally {
+      setIsSubmittingReturn(false);
     }
   };
 
@@ -108,8 +271,8 @@ export default function OrderDetail() {
             </Editable>
           )}
           {order.status === "Delivered" && (
-            <Editable as="button" kind="button" id="order-return-btn" label="Return Button" onClick={() => showInfoPopup("Your return request has been started.", { title: "Return requested" })} className="text-sm text-gray-700 border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-sm font-medium flex items-center gap-1.5 transition-colors">
-              <Undo2 size={15} /> Return Item
+            <Editable as="button" kind="button" id="order-return-btn" label="Return Button" onClick={openReturnDialog} disabled={Boolean(pendingReturn)} className="text-sm text-gray-700 border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-sm font-medium flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-60">
+              <Undo2 size={15} /> {pendingReturn ? RETURN_BUTTON_LABELS[pendingReturn.status] || "Return Requested" : "Return Item"}
             </Editable>
           )}
           {canDownloadInvoice && (
@@ -119,6 +282,26 @@ export default function OrderDetail() {
           )}
         </div>
       </div>
+
+      {latestActiveReturn && latestActiveReturn.status !== "pending" && (
+        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <p className="font-semibold">{RETURN_STATUS_NOTICES[latestActiveReturn.status]?.title || "Return status updated"}</p>
+          <p className="mt-1">
+            {RETURN_STATUS_NOTICES[latestActiveReturn.status]?.message(getReturnProductName(latestActiveReturn)) ||
+              `Your return request for ${getReturnProductName(latestActiveReturn)} has been updated.`}
+          </p>
+        </div>
+      )}
+
+      {rejectedReturn && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="font-semibold">Return request rejected</p>
+          <p className="mt-1">
+            Your return request for {getReturnProductName(rejectedReturn)} was rejected.
+            {rejectedReturn.adminNote ? ` Reason: ${rejectedReturn.adminNote}` : ""}
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Timeline & Items */}
@@ -258,6 +441,119 @@ export default function OrderDetail() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showReturnDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="return-order-dialog-title"
+        >
+          <form onSubmit={handleReturnSubmit} className="w-full max-w-md rounded-md bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand/10 text-brand">
+              <Undo2 size={24} />
+            </div>
+            <h2 id="return-order-dialog-title" className="text-lg font-semibold text-gray-900">
+              Request return
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Submit this request to the admin team for review and refund processing.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Item
+                <select
+                  value={returnForm.productId}
+                  onChange={(event) => {
+                    const nextItem = order.items.find((item) => item.id === event.target.value);
+                    setReturnForm((current) => ({
+                      ...current,
+                      productId: event.target.value,
+                      quantity: Math.min(current.quantity, nextItem?.qty || 1),
+                    }));
+                  }}
+                  className="mt-1 w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  required
+                >
+                  {order.items.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-sm font-medium text-gray-700">
+                Quantity
+                <input
+                  type="number"
+                  min="1"
+                  max={selectedReturnItem?.qty || 1}
+                  value={returnForm.quantity}
+                  onChange={(event) =>
+                    setReturnForm((current) => ({
+                      ...current,
+                      quantity: event.target.value,
+                    }))
+                  }
+                  className="mt-1 w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-gray-700">
+                Reason
+                <select
+                  value={returnForm.reason}
+                  onChange={(event) =>
+                    setReturnForm((current) => ({ ...current, reason: event.target.value }))
+                  }
+                  className="mt-1 w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  required
+                >
+                  <option>Product no longer required</option>
+                  <option>Wrong item received</option>
+                  <option>Damaged or defective product</option>
+                  <option>Quality issue</option>
+                  <option>Other</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-medium text-gray-700">
+                Details
+                <textarea
+                  value={returnForm.details}
+                  onChange={(event) =>
+                    setReturnForm((current) => ({ ...current, details: event.target.value }))
+                  }
+                  rows={3}
+                  placeholder="Add any extra details for admin..."
+                  className="mt-1 w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                />
+              </label>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowReturnDialog(false)}
+                disabled={isSubmittingReturn}
+                className="rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmittingReturn}
+                className="rounded-sm bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmittingReturn ? "Submitting..." : "Submit Return"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

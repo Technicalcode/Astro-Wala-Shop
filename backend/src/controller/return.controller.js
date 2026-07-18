@@ -24,6 +24,8 @@ const populateReturn = (query) =>
     .populate("product", "name image brand")
     .populate("order", "orderStatus paymentMethod paymentStatus totalAmount createdAt");
 
+const populateReturnLean = (query) => populateReturn(query).lean();
+
 export const CreateReturnRequest = async (req, res) => {
   try {
     const { orderId, productId, quantity = 1, reason, details = "", proofImages = [] } =
@@ -42,7 +44,9 @@ export const CreateReturnRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: "Proof images must be an array" });
     }
 
-    const order = await OrderModel.findById(orderId);
+    const order = await OrderModel.findById(orderId).select(
+      "user orderStatus items",
+    );
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
@@ -126,7 +130,7 @@ export const GetMyReturns = async (req, res) => {
   try {
     const returns = await populateReturn(
       ReturnModel.find({ user: req.user.id }).sort({ createdAt: -1 }),
-    );
+    ).lean();
 
     return res.status(200).json({
       success: true,
@@ -144,12 +148,12 @@ export const GetReturnById = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid return id" });
     }
 
-    const returnRequest = await populateReturn(ReturnModel.findById(req.params.id));
+    const returnRequest = await populateReturnLean(ReturnModel.findById(req.params.id));
     if (!returnRequest) {
       return res.status(404).json({ success: false, message: "Return not found" });
     }
 
-    const isOwner = String(returnRequest.user?._id) === String(req.user.id);
+    const isOwner = String(returnRequest.user?._id || returnRequest.user) === String(req.user.id);
     if (!isOwner && !ADMIN_ROLES.includes(req.user.role)) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
@@ -195,7 +199,7 @@ export const AdminGetReturns = async (req, res) => {
           .sort({ createdAt: -1 })
           .skip((page - 1) * limit)
           .limit(limit),
-      ),
+      ).lean(),
       ReturnModel.countDocuments(filter),
     ]);
 
@@ -270,7 +274,7 @@ export const AdminUpdateReturnStatus = async (req, res) => {
       req,
     });
 
-    const populatedReturn = await populateReturn(ReturnModel.findById(returnRequest._id));
+    const populatedReturn = await populateReturnLean(ReturnModel.findById(returnRequest._id));
     return res.status(200).json({
       success: true,
       message: "Return status updated successfully",

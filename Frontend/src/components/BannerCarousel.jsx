@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBanners, selectBannerSlides } from "../store/bannerSlice";
 import Editable from "./editable/Editable";
 
-export default function BannerCarousel() {
+function BannerCarousel() {
   const dispatch = useDispatch();
   const [index, setIndex] = useState(0);
   const slides = useSelector(selectBannerSlides);
@@ -126,16 +126,20 @@ export default function BannerCarousel() {
             <ChevronRight size={18} />
           </button>
 
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex z-10">
             {slides.map((s, i) => (
               <button
                 key={s.id}
                 onClick={() => setIndex(i)}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === activeIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
-                }`}
+                className="flex h-11 w-11 items-center justify-center rounded-full"
                 aria-label={`Go to slide ${i + 1}`}
-              />
+              >
+                <span
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === activeIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </>
@@ -143,3 +147,5 @@ export default function BannerCarousel() {
     </div>
   );
 }
+
+export default memo(BannerCarousel);

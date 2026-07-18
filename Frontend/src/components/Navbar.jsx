@@ -155,9 +155,11 @@ export default function Navbar() {
               kind="button"
               id="navbar-wishlist-btn"
               label="Wishlist Button"
+              aria-label="Wishlist"
               className="relative flex items-center gap-1 text-white text-sm font-medium hidden sm:flex"
             >
               <Heart size={19} />
+              <span className="sr-only">Wishlist</span>
               {wishlistIds.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center">
                   {wishlistIds.length}
@@ -172,6 +174,7 @@ export default function Navbar() {
               kind="button"
               id="navbar-cart-btn"
               label="Cart Button (Text + Background)"
+              aria-label="Cart"
               className="relative flex items-center gap-1.5 text-white text-sm font-medium"
             >
               <ShoppingCart size={20} />

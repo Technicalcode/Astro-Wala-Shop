@@ -1,18 +1,97 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { login } from "../store/authSlice";
+import { googleLogin, login } from "../store/authSlice";
 import Editable from "../components/editable/Editable";
-import { showErrorPopup } from "../utils/notificationCenter";
+import { showErrorPopup, showInfoPopup } from "../utils/notificationCenter";
 
 export default function Login() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const location = useLocation();
+	const googleButtonRef = useRef(null);
+	const [form, setForm] = useState({ email: "", password: "" });
+	const [error, setError] = useState("");
+	const [submitting, setSubmitting] = useState(false);
+	const [googleReady, setGoogleReady] = useState(false);
+	const [googleSubmitting, setGoogleSubmitting] = useState(false);
+	const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+	const finishLogin = (user) => {
+		if (user?.role === "admin") {
+			navigate("/admin", { replace: true });
+		} else {
+			navigate(location.state?.from || "/", { replace: true });
+		}
+	};
+
+	useEffect(() => {
+		if (!googleClientId) return undefined;
+
+		let cancelled = false;
+
+		const initializeGoogle = () => {
+			if (cancelled || !window.google?.accounts?.id || !googleButtonRef.current) return;
+
+			window.google.accounts.id.initialize({
+				client_id: googleClientId,
+				callback: async (response) => {
+					if (!response?.credential) {
+						showErrorPopup("Google did not return a login credential.", {
+							title: "Google login failed",
+						});
+						return;
+					}
+
+					setGoogleSubmitting(true);
+					const result = await dispatch(googleLogin(response.credential));
+					setGoogleSubmitting(false);
+
+					if (!result.ok) {
+						showErrorPopup(result.error, { title: "Google login failed" });
+						return;
+					}
+
+					finishLogin(result.user);
+				},
+			});
+
+			window.google.accounts.id.renderButton(googleButtonRef.current, {
+				theme: "outline",
+				size: "large",
+				width: googleButtonRef.current.offsetWidth || 360,
+				text: "continue_with",
+				shape: "rectangular",
+			});
+			setGoogleReady(true);
+		};
+
+		if (window.google?.accounts?.id) {
+			initializeGoogle();
+			return () => {
+				cancelled = true;
+			};
+		}
+
+		const script = document.createElement("script");
+		script.src = "https://accounts.google.com/gsi/client";
+		script.async = true;
+		script.defer = true;
+		script.onload = initializeGoogle;
+		script.onerror = () => {
+			if (!cancelled) {
+				showErrorPopup("Could not load Google login. Please try again.", {
+					title: "Google login unavailable",
+				});
+			}
+		};
+		document.head.appendChild(script);
+
+		return () => {
+			cancelled = true;
+		};
+	}, [dispatch, googleClientId, location.state?.from, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,15 +110,30 @@ export default function Login() {
         return;
       }
       // Redirect by the account's actual role, regardless of which login form was used.
-      if (res.user?.role === "admin") {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate(location.state?.from || "/", { replace: true });
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+			finishLogin(res.user);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const handleGoogleLogin = () => {
+		if (!googleClientId) {
+			showInfoPopup(
+				"Google login is ready in code. Please add VITE_GOOGLE_CLIENT_ID in frontend .env and GOOGLE_CLIENT_ID in backend .env.",
+				{ title: "Google login setup required" },
+			);
+			return;
+		}
+
+		if (!window.google?.accounts?.id) {
+			showInfoPopup("Google login is still loading. Please try again in a moment.", {
+				title: "Google login loading",
+			});
+			return;
+		}
+
+		window.google.accounts.id.prompt();
+	};
 
   return (
     <div className="flex justify-center py-8">
@@ -123,6 +217,35 @@ export default function Login() {
             {submitting && <LoaderCircle size={17} className="animate-spin" />}
             {submitting ? "Logging in..." : "Login"}
           </Editable>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">or</span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+
+					<div className="min-h-11">
+						<div ref={googleButtonRef} className={googleClientId ? "w-full" : "hidden"} />
+						{(!googleClientId || !googleReady) && (
+							<Editable
+								as="button"
+								kind="button"
+								id="login-google-btn"
+								label="Google Login Button"
+								type="button"
+								onClick={handleGoogleLogin}
+								disabled={googleSubmitting}
+								className="flex w-full items-center justify-center gap-3 rounded-sm border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-wait disabled:opacity-70"
+								aria-label="Continue with Google"
+							>
+								<span className="flex h-5 w-5 items-center justify-center rounded-full border border-gray-200 bg-white font-bold text-blue-600">
+									G
+								</span>
+								{googleSubmitting ? "Signing in..." : "Continue with Google"}
+							</Editable>
+						)}
+					</div>
+
           <p className="text-sm text-gray-600 text-center mt-2">
             New to Astro Wala Shop?{" "}
             <Link to="/signup" className="text-brand font-medium">
