@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import BannerCarousel from "../components/BannerCarousel";
 import PanchangStrip from "../components/PanchangStrip";
 import CategoryGrid from "../components/CategoryGrid";
@@ -20,12 +20,13 @@ export default function Home() {
   const [visibleRails, setVisibleRails] = useState(2);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
+  const loadMoreRef = useRef(null);
 
   useEffect(() => {
     if (!productsLoading && categories.length > 0) {
       const timer = setTimeout(() => {
         setShowLoader(false);
-      }, 1000); // Wait 1 second for smooth rendering
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [productsLoading, categories.length]);
@@ -107,23 +108,27 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      if (
-        window.innerHeight + scrollY + 200 >=
-        document.documentElement.scrollHeight
-      ) {
-        if (!loadingMore && visibleRails < categoryRails.length) {
-          setLoadingMore(true);
-          setTimeout(() => {
-            setVisibleRails(prev => prev + 2);
-            setLoadingMore(false);
-          }, 800);
-        }
-      }
+    const target = loadMoreRef.current;
+    if (!target || visibleRails >= categoryRails.length) return undefined;
+
+    const loadNextRails = () => {
+      if (loadingMore) return;
+      setLoadingMore(true);
+      window.requestAnimationFrame(() => {
+        setVisibleRails((prev) => Math.min(prev + 2, categoryRails.length));
+        setLoadingMore(false);
+      });
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadNextRails();
+      },
+      { rootMargin: "500px 0px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
   }, [loadingMore, visibleRails, categoryRails.length]);
 
   return (
@@ -180,12 +185,16 @@ export default function Home() {
       ))}
 
       {visibleRails < categoryRails.length ? (
-        <div className="flex flex-col items-center justify-center py-20 min-h-[50vh]">
-          <div className="relative w-12 h-12 mb-4">
-            <div className="absolute inset-0 border-4 border-brand/20 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <p className="text-gray-900 font-medium tracking-wide">Loading more collections...</p>
+        <div ref={loadMoreRef} className="flex flex-col items-center justify-center py-8" aria-live="polite">
+          {loadingMore && (
+            <>
+              <div className="relative w-9 h-9 mb-3">
+                <div className="absolute inset-0 border-4 border-brand/20 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <p className="text-gray-900 font-medium tracking-wide">Loading more collections...</p>
+            </>
+          )}
         </div>
       ) : (
         <Suspense fallback={null}>

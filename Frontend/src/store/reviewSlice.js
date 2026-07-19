@@ -22,10 +22,28 @@ const normalizeReview = (review = {}) => ({
   title: review.title || "Customer Review",
   comment: review.comment || review.text || "",
   text: review.comment || review.text || "",
+  images: Array.isArray(review.images)
+    ? review.images
+        .filter((image) => image?.url || typeof image === "string")
+        .map((image) => ({
+          url: toImageUrl(typeof image === "string" ? image : image.url),
+          public_id: typeof image === "string" ? "" : image.public_id || "",
+        }))
+    : [],
   status: review.status || "published",
   date: review.date || review.createdAt || new Date().toISOString(),
   updatedAt: review.updatedAt || review.date || review.createdAt || new Date().toISOString(),
 });
+
+const buildReviewFormData = ({ rating, title, comment, imageFile, removeImage }) => {
+  const formData = new FormData();
+  formData.append("rating", String(rating));
+  formData.append("title", title || "Customer Review");
+  formData.append("comment", comment || "");
+  if (removeImage) formData.append("removeImage", "true");
+  if (imageFile) formData.append("Review_image", imageFile);
+  return formData;
+};
 
 const upsertReview = (reviews, review) => {
   const index = reviews.findIndex((item) => item.id === review.id);
@@ -87,14 +105,11 @@ export const fetchReviewEligibility = createAsyncThunk(
 
 export const submitProductReview = createAsyncThunk(
   "reviews/submitProduct",
-  async ({ productId, rating, title, comment }, thunkAPI) => {
+  async ({ productId, rating, title, comment, imageFile, removeImage }, thunkAPI) => {
     try {
       const res = await fetchWithAuth(`${backendUrl}/api/v1/review/product/${productId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ rating, title, comment }),
+        body: buildReviewFormData({ rating, title, comment, imageFile, removeImage }),
       });
       const data = await readApiResponse(res);
 
@@ -134,14 +149,11 @@ export const fetchMyReviews = createAsyncThunk(
 
 export const updateReview = createAsyncThunk(
   "reviews/update",
-  async ({ id, rating, title, comment }, thunkAPI) => {
+  async ({ id, rating, title, comment, imageFile, removeImage }, thunkAPI) => {
     try {
       const res = await fetchWithAuth(`${backendUrl}/api/v1/review/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ rating, title, comment }),
+        body: buildReviewFormData({ rating, title, comment, imageFile, removeImage }),
       });
       const data = await readApiResponse(res);
 

@@ -43,6 +43,19 @@ const reviewSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
+    images: [
+      {
+        url: {
+          type: String,
+          trim: true,
+        },
+        public_id: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
+
     status: {
       type: String,
       enum: ["published", "hidden"],

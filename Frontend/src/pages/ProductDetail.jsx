@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { ShieldCheck, Truck, RotateCcw, ChevronRight, Check, Lock, Star, MapPin, Loader2, Heart, Share2, MessageCircle, Link2 } from "lucide-react";
+import { ShieldCheck, Truck, RotateCcw, ChevronRight, Check, Lock, Star, MapPin, Loader2, Heart, Share2, MessageCircle, Link2, X, ZoomIn, ImagePlus } from "lucide-react";
 import { selectProductById, selectProductsByCategory, selectProductsLoading } from "../store/productsSlice";
 import { selectCategoryById } from "../store/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -55,9 +55,13 @@ export default function ProductDetail() {
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
+  const [reviewImageFile, setReviewImageFile] = useState(null);
+  const [reviewImagePreview, setReviewImagePreview] = useState("");
+  const [reviewImageRemoved, setReviewImageRemoved] = useState(false);
   const [reviewNotice, setReviewNotice] = useState("");
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [imageZoomOpen, setImageZoomOpen] = useState(false);
   const sentinelRef = useRef(null);
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -87,16 +91,23 @@ export default function ProductDetail() {
       setReviewRating(reviewEligibility.review.rating);
       setReviewTitle(reviewEligibility.review.title || "");
       setReviewComment(reviewEligibility.review.comment);
+      setReviewImagePreview(reviewEligibility.review.images?.[0]?.url || "");
+      setReviewImageFile(null);
+      setReviewImageRemoved(false);
     } else {
       setReviewRating(0);
       setReviewTitle("");
       setReviewComment("");
+      setReviewImagePreview("");
+      setReviewImageFile(null);
+      setReviewImageRemoved(false);
     }
   }, [
     productId,
     reviewEligibility.review?.id,
     reviewEligibility.review?.rating,
     reviewEligibility.review?.comment,
+    reviewEligibility.review?.images?.[0]?.url,
     reviewEligibility.review?.updatedAt,
   ]);
 
@@ -104,7 +115,29 @@ export default function ProductDetail() {
     setReviewNotice("");
     setDeliveryEstimate(null);
     setDeliveryError("");
+    setImageZoomOpen(false);
   }, [productId]);
+
+  useEffect(() => {
+    if (!imageZoomOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setImageZoomOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [imageZoomOpen]);
+
+  useEffect(() => {
+    if (!reviewImagePreview.startsWith("blob:")) return undefined;
+    return () => URL.revokeObjectURL(reviewImagePreview);
+  }, [reviewImagePreview]);
 
   if (!product && productsLoading) {
     return <PageLoadingState label="Loading product details..." />;
@@ -213,6 +246,8 @@ export default function ProductDetail() {
       rating: reviewRating,
       title: reviewTitle,
       comment: reviewComment,
+      imageFile: reviewImageFile,
+      removeImage: reviewImageRemoved,
     };
     const result = reviewEligibility.review?.id
       ? await dispatch(updateReview({ id: reviewEligibility.review.id, ...reviewPayload }))
@@ -227,8 +262,38 @@ export default function ProductDetail() {
       setReviewRating(result.payload.review.rating);
       setReviewTitle(result.payload.review.title || "");
       setReviewComment(result.payload.review.comment);
+      setReviewImageFile(null);
+      setReviewImageRemoved(false);
+      setReviewImagePreview(result.payload.review.images?.[0]?.url || "");
     }
     setReviewNotice("Your review has been saved.");
+  };
+
+  const handleReviewImageChange = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setReviewNotice("Please upload a valid image file.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setReviewNotice("Review image must be under 5 MB.");
+      return;
+    }
+
+    setReviewImageFile(file);
+    setReviewImagePreview(URL.createObjectURL(file));
+    setReviewImageRemoved(false);
+    setReviewNotice("");
+  };
+
+  const removeReviewImage = () => {
+    setReviewImageFile(null);
+    setReviewImagePreview("");
+    setReviewImageRemoved(true);
   };
 
   const handleAddToCart = async () => {
@@ -343,11 +408,21 @@ export default function ProductDetail() {
         {/* ── Left: Image Frame ── */}
         <div className="md:w-[380px] shrink-0">
           <Editable as="div" id="pd-image-frame" kind="button" label="Image Frame Background"
-            className="border border-gray-100 rounded-md p-4 mb-3">
+            className="relative border border-gray-100 rounded-md p-4 mb-3 group">
+            <button
+              type="button"
+              onClick={() => setImageZoomOpen(true)}
+              className="absolute right-6 top-6 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-brand shadow-sm border border-gray-100 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+              aria-label="Open product image zoom"
+              title="Open image zoom"
+            >
+              <ZoomIn size={18} />
+            </button>
             <img loading="lazy"
               src={product.images[activeImg]}
               alt={product.name}
-              className="w-full aspect-square object-cover rounded"
+              className="w-full aspect-square object-cover rounded cursor-zoom-in"
+              onDoubleClick={() => setImageZoomOpen(true)}
               onError={(event) => {
                 event.currentTarget.onerror = null;
                 event.currentTarget.src = COMMON_CLOUDINARY_IMAGE_URL;
@@ -671,6 +746,27 @@ export default function ProductDetail() {
                   </div>
                   <p className="text-sm font-semibold text-gray-900 mt-2">{r.title}</p>
                   <p className="text-sm text-gray-700 mt-1">{r.comment}</p>
+                  {r.images?.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {r.images.map((image, index) => (
+                        <a
+                          key={`${r.id}-image-${index}`}
+                          href={image.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block h-20 w-20 overflow-hidden rounded border border-gray-100 bg-gray-50"
+                          aria-label={`Open review image ${index + 1}`}
+                        >
+                          <img
+                            loading="lazy"
+                            src={image.url}
+                            alt={`${r.user} review photo ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </Editable>
               ))
             )}
@@ -739,6 +835,40 @@ export default function ProductDetail() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Review photo</label>
+                  {reviewImagePreview ? (
+                    <div className="relative h-24 w-24 overflow-hidden rounded border border-gray-200 bg-gray-50">
+                      <img
+                        src={reviewImagePreview}
+                        alt="Selected review preview"
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeReviewImage}
+                        className="absolute right-1 top-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-gray-700 shadow hover:bg-gray-100"
+                        aria-label="Remove selected review photo"
+                        title="Remove photo"
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded border border-dashed border-gray-300 bg-white px-3 py-3 text-sm font-medium text-gray-700 hover:border-brand hover:text-brand">
+                      <ImagePlus size={17} />
+                      Add product photo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleReviewImageChange}
+                        className="sr-only"
+                      />
+                    </label>
+                  )}
+                  <p className="mt-1 text-[11px] text-gray-500">Optional. JPG, PNG or WebP up to 5 MB.</p>
+                </div>
+
                 {reviewNotice && (
                   <p className={`text-xs ${reviewNotice.includes("saved") ? "text-green-700" : "text-red-600"}`}>
                     {reviewNotice}
@@ -776,6 +906,36 @@ export default function ProductDetail() {
 
       {/* Recently Viewed Rail */}
       <RecentlyViewedRail />
+
+      {imageZoomOpen && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/85 p-4 sm:p-8 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${product.name} enlarged image`}
+          onClick={() => setImageZoomOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setImageZoomOpen(false)}
+            className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-900 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+            aria-label="Close image zoom"
+            title="Close"
+          >
+            <X size={22} />
+          </button>
+          <img
+            src={product.images[activeImg]}
+            alt={`${product.name} enlarged view`}
+            className="max-h-[88vh] max-w-[96vw] object-contain rounded-md bg-white"
+            onClick={(event) => event.stopPropagation()}
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = COMMON_CLOUDINARY_IMAGE_URL;
+            }}
+          />
+        </div>
+      )}
 
       {/* Sticky bottom cart bar */}
       <StickyCartBar product={product} sentinelRef={sentinelRef} />

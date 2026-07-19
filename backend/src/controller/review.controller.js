@@ -3,6 +3,7 @@ import OrderModel from "../Model/order.model.js";
 import ProductModel from "../Model/product.model.js";
 import ReviewModel from "../Model/review.model.js";
 import { createAuditLog } from "../utils/audit-log.js";
+import { deleteImageAsset, saveImageAsset } from "../utils/image-upload.js";
 
 const PURCHASED_ORDER_STATUSES = [
   "Confirmed",
@@ -40,10 +41,36 @@ const formatReview = (review) => {
     title: data.title || "Customer Review",
     comment: data.comment,
     text: data.comment,
+    images: Array.isArray(data.images)
+      ? data.images
+          .filter((image) => image?.url)
+          .map((image) => ({
+            url: image.url,
+            public_id: image.public_id || "",
+          }))
+      : [],
     status: data.status,
     date: data.createdAt,
     updatedAt: data.updatedAt,
   };
+};
+
+const buildReviewImageUpdate = async ({ file, name }) => {
+  if (!file) return null;
+
+  const imageAsset = await saveImageAsset({
+    file,
+    folder: "astro-reviews",
+    name,
+    width: 900,
+    height: 900,
+    fit: "inside",
+    quality: 82,
+  });
+
+  return imageAsset
+    ? [{ url: imageAsset.image, public_id: imageAsset.public_id }]
+    : null;
 };
 
 const getReviewSummary = async (productId) => {
@@ -211,16 +238,36 @@ export const CreateOrUpdateReview = async (req, res) => {
       });
     }
 
+    const uploadedImages = await buildReviewImageUpdate({
+      file: req.file,
+      name: `${productId}-review`,
+    });
+    const shouldRemoveImage = String(req.body.removeImage || "").toLowerCase() === "true";
+
+    const setPayload = {
+      order: order._id,
+      rating,
+      title: title || "Customer Review",
+      comment,
+      status: "published",
+    };
+
+    if (uploadedImages || shouldRemoveImage) {
+      const oldReview = await ReviewModel.findOne({ user: userId, product: productId })
+        .select("images")
+        .lean();
+
+      await Promise.all(
+        (oldReview?.images || []).map((image) => deleteImageAsset(image.public_id)),
+      );
+
+      setPayload.images = uploadedImages || [];
+    }
+
     const review = await ReviewModel.findOneAndUpdate(
       { user: userId, product: productId },
       {
-        $set: {
-          order: order._id,
-          rating,
-          title: title || "Customer Review",
-          comment,
-          status: "published",
-        },
+        $set: setPayload,
         $setOnInsert: {
           user: userId,
           product: productId,
@@ -301,9 +348,37 @@ export const UpdateReview = async (req, res) => {
       });
     }
 
+    const uploadedImages = await buildReviewImageUpdate({
+      file: req.file,
+      name: `${req.params.reviewId}-review`,
+    });
+    const shouldRemoveImage = String(req.body.removeImage || "").toLowerCase() === "true";
+
+    const setPayload = {
+      rating,
+      title: title || "Customer Review",
+      comment,
+      status: "published",
+    };
+
+    if (uploadedImages || shouldRemoveImage) {
+      const oldReview = await ReviewModel.findOne({
+        _id: req.params.reviewId,
+        user: req.user.id,
+      })
+        .select("images")
+        .lean();
+
+      await Promise.all(
+        (oldReview?.images || []).map((image) => deleteImageAsset(image.public_id)),
+      );
+
+      setPayload.images = uploadedImages || [];
+    }
+
     const review = await ReviewModel.findOneAndUpdate(
       { _id: req.params.reviewId, user: req.user.id },
-      { $set: { rating, title: title || "Customer Review", comment, status: "published" } },
+      { $set: setPayload },
       { returnDocument: "after", runValidators: true },
     )
       .populate("user", "email")
@@ -346,6 +421,10 @@ export const DeleteReview = async (req, res) => {
         message: "Review not found",
       });
     }
+
+    await Promise.all(
+      (review.images || []).map((image) => deleteImageAsset(image.public_id)),
+    );
 
     const summary = await getReviewSummary(review.product);
 
@@ -472,6 +551,10 @@ export const DeleteAdminReview = async (req, res) => {
         message: "Review not found",
       });
     }
+
+    await Promise.all(
+      (review.images || []).map((image) => deleteImageAsset(image.public_id)),
+    );
 
     await createAuditLog({
       admin: req.user.id,
