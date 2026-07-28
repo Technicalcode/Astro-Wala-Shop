@@ -529,6 +529,20 @@ export const EmailVerfily = async (req, res) => {
 			message: error.message,
 		});
 	}
+}; const hashPasswordResetToken = (resetToken) =>
+  crypto.createHash("sha256").update(String(resetToken)).digest("hex");
+
+  const getPasswordResetTokenTtlMs = () => {
+  const configuredMinutes = Number.parseInt(
+    process.env.PASSWORD_RESET_TOKEN_TTL_MINUTES,
+    10,
+  );
+  const ttlMinutes =
+    Number.isInteger(configuredMinutes) && configuredMinutes > 0
+      ? Math.min(configuredMinutes, 1440)
+      : 15;
+
+  return ttlMinutes * 60 * 1000;
 };
 
 export const ForgetPassword = async (req, res) => {
@@ -552,15 +566,21 @@ export const ForgetPassword = async (req, res) => {
 
 		// Generate reset token
 		const resetToken = crypto.randomBytes(64).toString("hex");
+		const passwordResetTokenHash = hashPasswordResetToken(resetToken);
+    const passwordResetTokenExpiresAt = new Date(
+      Date.now() + getPasswordResetTokenTtlMs(),
+    );
 
 		// Save token
 		user.Resettoken = resetToken;
 		user.resetTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
 		await user.save();
-
+console.log("Reset token saved:", resetToken);
 		// Send email
 		await sendEmail(email, resetToken);
+
+
 
 		return res.status(200).json({
 			message: "Password reset email sent successfully.",

@@ -18,6 +18,8 @@ import { loadingMiddleware } from "./loadingMiddleware";
 import { errorNotificationMiddleware } from "./errorNotificationMiddleware";
 import cartUiReducer from "./cartUiSlice";
 import couponReducer from "./couponSlice";
+import footerReducer from "./footerSlice";
+import aboutPageReducer from "./aboutPageSlice";
 
 const channel = new BroadcastChannel('app_state_sync');
 
@@ -57,6 +59,8 @@ export const store = configureStore({
     reviews: reviewReducer,
     cartUi: cartUiReducer,
     coupon: couponReducer,
+    footer: footerReducer,
+    aboutPage: aboutPageReducer,
   },
   middleware: (getDefaultMiddleware) => 
     getDefaultMiddleware().concat(

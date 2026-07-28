@@ -15,6 +15,89 @@ const normalizePosition = (value) => {
   return Number.isNaN(position) ? 0 : position;
 };
 
+const normalizeStyles = (styles = {}) => {
+  const validFontFamilies = ["default", "serif", "sans", "mono"];
+  const validWeights = ["normal", "medium", "semibold", "bold"];
+  const validStyles = ["normal", "italic"];
+  const clamp = (value, min, max, fallback) => {
+    const number = Number(value);
+    if (Number.isNaN(number)) return fallback;
+    return Math.min(max, Math.max(min, number));
+  };
+  const normalizeFontBlock = (block = {}, fallback = {}) => ({
+    fontFamily: validFontFamilies.includes(block.fontFamily) ? block.fontFamily : fallback.fontFamily,
+    fontSize: clamp(block.fontSize, 1, fallback.maxSize, fallback.fontSize),
+    fontWeight: validWeights.includes(block.fontWeight) ? block.fontWeight : fallback.fontWeight,
+    fontStyle: validStyles.includes(block.fontStyle) ? block.fontStyle : fallback.fontStyle,
+    textColor: /^#[0-9a-f]{6}$/i.test(String(block.textColor || ""))
+      ? block.textColor
+      : fallback.textColor,
+  });
+
+  // Backward compatibility for older flat style payloads.
+  if (styles.fontFamily || styles.headingSize || styles.bodySize) {
+    return {
+      title: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: 12,
+          fontWeight: styles.fontWeight,
+          fontStyle: styles.fontStyle,
+          textColor: "#374151",
+        },
+        { fontFamily: "default", fontSize: 12, maxSize: 64, fontWeight: "normal", fontStyle: "normal", textColor: "#374151" },
+      ),
+      heading: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: styles.headingSize,
+          fontWeight: "bold",
+          fontStyle: styles.fontStyle,
+          textColor: "#111827",
+        },
+        { fontFamily: "default", fontSize: 24, maxSize: 96, fontWeight: "bold", fontStyle: "normal", textColor: "#111827" },
+      ),
+      body: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: styles.bodySize,
+          fontWeight: styles.fontWeight,
+          fontStyle: styles.fontStyle,
+          textColor: styles.textColor,
+        },
+        { fontFamily: "default", fontSize: 14, maxSize: 64, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" },
+      ),
+    };
+  }
+
+  return {
+    title: normalizeFontBlock(styles.title, {
+      fontFamily: "default",
+      fontSize: 12,
+      maxSize: 64,
+      fontWeight: "normal",
+      fontStyle: "normal",
+      textColor: "#374151",
+    }),
+    heading: normalizeFontBlock(styles.heading, {
+      fontFamily: "default",
+      fontSize: 24,
+      maxSize: 96,
+      fontWeight: "bold",
+      fontStyle: "normal",
+      textColor: "#111827",
+    }),
+    body: normalizeFontBlock(styles.body, {
+      fontFamily: "default",
+      fontSize: 14,
+      maxSize: 64,
+      fontWeight: "normal",
+      fontStyle: "normal",
+      textColor: "#4B5563",
+    }),
+  };
+};
+
 const sendServerError = (res, error) =>
   res.status(500).json({
     success: false,
@@ -24,7 +107,7 @@ const sendServerError = (res, error) =>
 // POST /api/v1/policy/create
 export const CreatePolicy = async (req, res) => {
   try {
-    const { title, slug, heading, content, position } = req.body;
+    const { title, slug, heading, content, position, styles } = req.body;
     const normalizedSlug = normalizeSlug(slug);
 
     if (!title || !normalizedSlug || !heading || !content) {
@@ -47,6 +130,7 @@ export const CreatePolicy = async (req, res) => {
       slug: normalizedSlug,
       heading,
       content,
+      styles: normalizeStyles(styles),
       position: normalizePosition(position),
       adminId: req.user?.id,
     });
@@ -113,7 +197,7 @@ export const GetPolicyBySlug = async (req, res) => {
 export const UpdatePolicy = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, slug, heading, content, position } = req.body;
+    const { title, slug, heading, content, position, styles } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -157,6 +241,7 @@ export const UpdatePolicy = async (req, res) => {
     if (title !== undefined) policy.title = title;
     if (heading !== undefined) policy.heading = heading;
     if (content !== undefined) policy.content = content;
+    if (styles !== undefined) policy.styles = normalizeStyles(styles);
     if (position !== undefined) policy.position = normalizePosition(position);
     policy.lastEditedByAdminId = req.user?.id;
 

@@ -246,6 +246,16 @@ export const VerifyRazorpayPayment = async (req, res) => {
         }
       }
 
+      if (currentIntent.coupon) {
+        await calculateCouponDiscount({
+          couponId: currentIntent.coupon,
+          userId: currentIntent.user,
+          items: currentIntent.items,
+          redeem: true,
+          session,
+        });
+      }
+
       [storeOrder] = await OrderModel.create(
         [
           {
@@ -301,19 +311,6 @@ export const VerifyRazorpayPayment = async (req, res) => {
       currentIntent.storeOrder = storeOrder._id;
       await currentIntent.save({ session });
     });
-
-    if (intent.coupon) {
-      try {
-        await calculateCouponDiscount({
-          couponId: intent.coupon,
-          userId: intent.user,
-          items: intent.items,
-          redeem: true,
-        });
-      } catch (error) {
-        console.error("Coupon redemption recording failed:", error.message);
-      }
-    }
 
     return res.status(201).json({
       success: true,

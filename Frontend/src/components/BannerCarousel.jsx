@@ -2,8 +2,30 @@ import { memo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBanners, selectBannerSlides } from "../store/bannerSlice";
+import { fetchBanners, normalizeBannerStyles, selectBannerSlides } from "../store/bannerSlice";
 import Editable from "./editable/Editable";
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 16}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
 
 function BannerCarousel() {
   const dispatch = useDispatch();
@@ -47,6 +69,7 @@ function BannerCarousel() {
       <div className="absolute inset-0">
         {slides.map((slide, i) => {
           const active = i === activeIndex;
+          const slideStyles = normalizeBannerStyles(slide.styles, slide);
           return (
             <div
               key={slide.id}
@@ -74,7 +97,7 @@ function BannerCarousel() {
                     group="banner-title"
                     label="Banner Slide Title"
                     className="font-display font-bold text-2xl md:text-4xl mb-2 drop-shadow-md"
-                    style={{ color: slide.titleColor || "#ffffff" }}
+                    style={toTextStyle(slideStyles.title)}
                   >
                     {slide.title}
                   </Editable>
@@ -85,7 +108,7 @@ function BannerCarousel() {
                     group="banner-subtitle"
                     label="Banner Slide Subtitle"
                     className="text-sm md:text-base mb-4 drop-shadow-md"
-                    style={{ color: slide.subtitleColor || "#f3f4f6" }}
+                    style={toTextStyle(slideStyles.subtitle)}
                   >
                     {slide.subtitle}
                   </Editable>
@@ -98,7 +121,7 @@ function BannerCarousel() {
                     group="banner-cta"
                     label="Banner CTA Button"
                     className="inline-block text-xs sm:text-base font-bold px-5 py-2 sm:px-8 sm:py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                    style={{ backgroundColor: slide.ctaBg || "#ffffff", color: slide.ctaText || "#000000" }}
+                    style={{ ...toTextStyle(slideStyles.cta), backgroundColor: slide.ctaBg || "#ffffff" }}
                   >
                     {slide.cta}
                   </Editable>

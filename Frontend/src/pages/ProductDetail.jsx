@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { ShieldCheck, Truck, RotateCcw, ChevronRight, Check, Lock, Star, MapPin, Loader2, Heart, Share2, MessageCircle, Link2, X, ZoomIn, ImagePlus } from "lucide-react";
-import { selectProductById, selectProductsByCategory, selectProductsLoading } from "../store/productsSlice";
+import { normalizeProductStyles, selectProductById, selectProductsByCategory, selectProductsLoading } from "../store/productsSlice";
 import { selectCategoryById } from "../store/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../store/cartSlice";
@@ -28,11 +28,34 @@ import { getCheckoutNavigationState } from "../utils/checkoutAddress";
 import PageLoadingState from "../components/PageLoadingState";
 import { showErrorPopup } from "../utils/notificationCenter";
 
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const product = useSelector(selectProductById(id));
+  const productStyles = normalizeProductStyles(product?.styles);
   const productsLoading = useSelector(selectProductsLoading);
   const productId = product?.id || id;
   const category = useSelector((state) => selectCategoryById(state, product?.category));
@@ -513,13 +536,15 @@ export default function ProductDetail() {
 
           {/* Brand */}
           <Editable as="p" id="pd-brand" kind="button" label="Brand Text"
-            className="text-xs text-gray-500">
+            className="text-xs text-gray-500"
+            style={toTextStyle(productStyles.brand)}>
             {product.brand}
           </Editable>
 
           {/* Title */}
           <Editable as="h1" id="pd-title" kind="button" label="Product Title"
-            className="text-xl font-display font-semibold text-gray-900 mt-1">
+            className="text-xl font-display font-semibold text-gray-900 mt-1"
+            style={toTextStyle(productStyles.name)}>
             {product.name}
           </Editable>
 
@@ -532,7 +557,8 @@ export default function ProductDetail() {
           {/* Price row */}
           <div className="flex items-baseline gap-3 mt-4 transition-all duration-300">
             <Editable as="span" id="pd-price" kind="button" label="Sale Price"
-              className="text-3xl font-semibold text-gray-900">
+              className="text-3xl font-semibold text-gray-900"
+              style={toTextStyle(productStyles.price)}>
               ₹{displayPrice.toLocaleString("en-IN")}
             </Editable>
             {displayMrp > displayPrice && (
@@ -677,7 +703,8 @@ export default function ProductDetail() {
             <ul className="space-y-1.5">
               {product.highlights.map((h, i) => (
                 <Editable as="li" key={i} group="pd-highlights-text" kind="button" label="Highlight Item"
-                  className="text-sm text-gray-600 flex gap-2">
+                  className="text-sm text-gray-600 flex gap-2"
+                  style={toTextStyle(productStyles.highlights)}>
                   <span className="text-brand">•</span> {h}
                 </Editable>
               ))}
@@ -691,7 +718,8 @@ export default function ProductDetail() {
               Description
             </Editable>
             <Editable as="p" id="pd-desc-text" kind="button" label="Description Paragraph"
-              className="text-sm text-gray-600 leading-relaxed">
+              className="text-sm text-gray-600 leading-relaxed"
+              style={toTextStyle(productStyles.description)}>
               {product.description}
             </Editable>
           </div>

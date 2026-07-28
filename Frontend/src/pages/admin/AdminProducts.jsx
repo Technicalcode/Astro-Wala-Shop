@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
-import { Plus, Pencil, Trash2, X, Upload, ImageOff, Download, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Upload, ImageOff, Download, Search, Type, RotateCcw } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectAllProducts, createProduct, updateProduct, deleteProduct } from "../../store/productsSlice";
+import { selectAllProducts, createProduct, updateProduct, deleteProduct, defaultProductStyles, normalizeProductStyles } from "../../store/productsSlice";
 import { selectCategories } from "../../store/categoriesSlice";
 import { fileToCompressedDataUrl } from "../../utils/imageUtils";
 import Editable from "../../components/editable/Editable";
@@ -21,7 +21,105 @@ const emptyForm = {
   description: "",
   stock: "100",
   bestseller: false,
+  styles: defaultProductStyles,
 };
+
+const fontFamilyOptions = [
+  { value: "default", label: "Default" },
+  { value: "serif", label: "Serif" },
+  { value: "sans", label: "Sans" },
+  { value: "mono", label: "Mono" },
+];
+
+const fontWeightOptions = [
+  { value: "normal", label: "Normal" },
+  { value: "medium", label: "Medium" },
+  { value: "semibold", label: "Semi Bold" },
+  { value: "bold", label: "Bold" },
+];
+
+const ProductFontControls = ({ label, value, onChange, maxSize = 96 }) => {
+  const update = (patch) => onChange({ ...value, ...patch });
+
+  return (
+    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase">{label}</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <select value={value.fontFamily} onChange={(e) => update({ fontFamily: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontFamilyOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <input type="number" min="1" max={maxSize} value={value.fontSize} onChange={(e) => update({ fontSize: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white" placeholder="Size" />
+        <select value={value.fontWeight} onChange={(e) => update({ fontWeight: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontWeightOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <select value={value.fontStyle} onChange={(e) => update({ fontStyle: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          <option value="normal">Normal</option>
+          <option value="italic">Italic</option>
+        </select>
+        <div className="sm:col-span-2 flex gap-2">
+          <input type="color" value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="h-10 w-12 rounded border border-gray-300 bg-white p-1" />
+          <input value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="min-w-0 flex-1 border border-gray-300 rounded px-2 py-2 text-sm font-mono bg-white" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toPreviewStyle = (style = defaultProductStyles.name) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
+
+const fontLabels = {
+  name: "Product Name Font",
+  brand: "Brand Font",
+  price: "Price Font",
+  highlights: "Highlights Font",
+  description: "Description Font",
+};
+
+const previewText = {
+  name: "Pure Red Coral (Moonga)",
+  brand: "AstroWala",
+  price: "₹3,500",
+  highlights: "100% natural and certified product",
+  description: "This text preview shows how the product description will look on the storefront.",
+};
+
+const FontButton = ({ onClick, label }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="shrink-0 inline-flex h-10 w-10 items-center justify-center rounded border border-indigo-100 bg-indigo-50 text-brand hover:bg-indigo-100"
+    title={label}
+    aria-label={label}
+  >
+    <Type size={17} />
+  </button>
+);
 
 const LOW_STOCK_LIMIT = 5;
 const PAGE_SIZE = 10;
@@ -65,6 +163,7 @@ export default function AdminProducts() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [activeFontKey, setActiveFontKey] = useState(null);
   const [images, setImages] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [editingImageSrc, setEditingImageSrc] = useState(null);
@@ -200,6 +299,7 @@ export default function AdminProducts() {
     setForm({
       ...emptyForm,
       category: categories[0]?.id || "",
+      styles: normalizeProductStyles(defaultProductStyles),
     });
     setImages([]);
     setImageFile(null);
@@ -224,6 +324,7 @@ export default function AdminProducts() {
       description: p.description,
       stock: String(p.stock || 100),
       bestseller: Boolean(p.bestseller),
+      styles: normalizeProductStyles(p.styles),
     });
     setImages(p.images && p.images.length > 0 ? [...p.images] : [p.image]);
     setImageFile(p.imageFile || null);
@@ -324,6 +425,7 @@ export default function AdminProducts() {
         }))
       }] : undefined,
       highlights: form.highlights ? form.highlights.split("\n").map(h => h.trim()).filter(Boolean) : undefined,
+      styles: normalizeProductStyles(form.styles),
       imageFile,
       image: images[0] || "",
       images: images.length > 0 ? images : [],
@@ -356,6 +458,20 @@ export default function AdminProducts() {
       ]);
     }
     setShowForm(false);
+  };
+
+  const updateProductFont = (key, value) => {
+    setForm((current) => ({
+      ...current,
+      styles: {
+        ...normalizeProductStyles(current.styles),
+        [key]: value,
+      },
+    }));
+  };
+
+  const resetProductFont = (key) => {
+    updateProductFont(key, defaultProductStyles[key]);
   };
 
   const handleDelete = (id) => {
@@ -709,13 +825,16 @@ export default function AdminProducts() {
               {editingId ? "Edit Product" : "Add New Product"}
             </h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input
-                required
-                placeholder="Product Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
-              />
+              <div className="flex gap-2">
+                <input
+                  required
+                  placeholder="Product Name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
+                />
+                <FontButton label="Edit product name font" onClick={() => setActiveFontKey("name")} />
+              </div>
               <select
                 required
                 value={form.category}
@@ -730,13 +849,16 @@ export default function AdminProducts() {
                   ))}
               </select>
               <div className="flex gap-3">
-                <input
-                  required
-                  placeholder="Brand"
-                  value={form.brand}
-                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                  className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand flex-1"
-                />
+                <div className="min-w-0 flex flex-1 gap-2">
+                  <input
+                    required
+                    placeholder="Brand"
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
+                  />
+                  <FontButton label="Edit brand font" onClick={() => setActiveFontKey("brand")} />
+                </div>
                 <input
                   required
                   type="number"
@@ -782,6 +904,7 @@ export default function AdminProducts() {
                   />
                   <span className="text-xs font-semibold text-green-700">% Off</span>
                 </div>
+                <FontButton label="Edit price font" onClick={() => setActiveFontKey("price")} />
               </div>
               <input
                 placeholder="Sizes (comma-separated, e.g. Small, Medium, Large)"
@@ -951,20 +1074,26 @@ export default function AdminProducts() {
                 </p>
               </div>
 
-              <textarea
-                placeholder="Product Highlights (one per line)"
-                value={form.highlights}
-                onChange={(e) => setForm({ ...form, highlights: e.target.value })}
-                rows={3}
-                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
-              />
-              <textarea
-                placeholder="Description"
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
-              />
+              <div className="flex gap-2">
+                <textarea
+                  placeholder="Product Highlights (one per line)"
+                  value={form.highlights}
+                  onChange={(e) => setForm({ ...form, highlights: e.target.value })}
+                  rows={3}
+                  className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
+                />
+                <FontButton label="Edit highlights font" onClick={() => setActiveFontKey("highlights")} />
+              </div>
+              <div className="flex gap-2">
+                <textarea
+                  placeholder="Description"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows={3}
+                  className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand"
+                />
+                <FontButton label="Edit description font" onClick={() => setActiveFontKey("description")} />
+              </div>
               <Editable
                 as="button"
                 kind="button"
@@ -977,6 +1106,65 @@ export default function AdminProducts() {
               </Editable>
             </form>
           </div>
+          {activeFontKey && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{fontLabels[activeFontKey]}</h3>
+                    <p className="text-xs text-gray-500">Preview and adjust this text style.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFontKey(null)}
+                    className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Close font editor"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Live Preview</p>
+                  <p style={toPreviewStyle(normalizeProductStyles(form.styles)[activeFontKey])}>
+                    {activeFontKey === "name"
+                      ? form.name || previewText.name
+                      : activeFontKey === "brand"
+                        ? form.brand || previewText.brand
+                        : activeFontKey === "price"
+                          ? `₹${Number(form.price || 3500).toLocaleString("en-IN")}`
+                          : activeFontKey === "highlights"
+                            ? form.highlights.split("\n").filter(Boolean)[0] || previewText.highlights
+                            : form.description || previewText.description}
+                  </p>
+                </div>
+
+                <ProductFontControls
+                  label={fontLabels[activeFontKey]}
+                  value={normalizeProductStyles(form.styles)[activeFontKey]}
+                  maxSize={activeFontKey === "name" || activeFontKey === "price" ? 96 : 64}
+                  onChange={(value) => updateProductFont(activeFontKey, value)}
+                />
+
+                <div className="mt-5 flex justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => resetProductFont(activeFontKey)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    <RotateCcw size={15} /> Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFontKey(null)}
+                    className="rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {editingImageSrc && (
             <Suspense fallback={null}>
               <ImageEditorModal

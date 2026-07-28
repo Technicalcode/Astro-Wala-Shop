@@ -7,6 +7,29 @@ import WishlistButton from "./WishlistButton";
 import { useSelector, useDispatch } from "react-redux";
 import { selectCanAddMoreCompare, toggleCompare } from "../store/compareSlice";
 import { COMMON_CLOUDINARY_IMAGE_URL } from "../config/api";
+import { normalizeProductStyles } from "../store/productsSlice";
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
 
 function ProductCard({ product, compact = false, groupId }) {
   const dispatch = useDispatch();
@@ -15,6 +38,7 @@ function ProductCard({ product, compact = false, groupId }) {
   );
   const canAddMore = useSelector(selectCanAddMoreCompare);
   const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+  const productStyles = normalizeProductStyles(product.styles);
 
   const bgGroup = groupId ? `product-card-bg-${groupId}` : "product-card-bg";
   const textGroup = groupId ? `product-card-text-${groupId}` : "product-card-text";
@@ -74,12 +98,13 @@ function ProductCard({ product, compact = false, groupId }) {
         </div>
         <div className="p-3 pt-2 flex flex-col gap-1 flex-1">
           <Editable as="p" group={textGroup} kind="button" label="Product Text"
-            className="text-sm text-gray-800 line-clamp-2 min-h-[2.5rem]">
+            className="text-sm text-gray-800 line-clamp-2 min-h-[2.5rem]"
+            style={toTextStyle(productStyles.name)}>
             {product.name}
           </Editable>
           <StarRating rating={product.rating} count={product.ratingCount} />
           <div className="flex items-baseline gap-2 mt-0.5">
-            <Editable as="span" group={priceGroup} kind="button" label="Price" className="font-semibold text-gray-900">
+            <Editable as="span" group={priceGroup} kind="button" label="Price" className="font-semibold text-gray-900" style={toTextStyle(productStyles.price)}>
               ₹{product.price.toLocaleString("en-IN")}
             </Editable>
             {product.mrp > product.price && (

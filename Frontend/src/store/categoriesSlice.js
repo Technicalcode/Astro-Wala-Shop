@@ -3,6 +3,24 @@ import { backendUrl, COMMON_CLOUDINARY_IMAGE_URL, toAssetUrl } from "../config/a
 
 const toImageUrl = (image) => toAssetUrl(image, COMMON_CLOUDINARY_IMAGE_URL);
 
+export const defaultCategoryStyles = {
+  name: { fontFamily: "default", fontSize: 14, fontWeight: "semibold", fontStyle: "normal", textColor: "#1F2937" },
+  tagline: { fontFamily: "default", fontSize: 13, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" },
+};
+
+const normalizeFontBlock = (block = {}, fallback = defaultCategoryStyles.name) => ({
+  fontFamily: block.fontFamily || fallback.fontFamily,
+  fontSize: Number(block.fontSize) || fallback.fontSize,
+  fontWeight: block.fontWeight || fallback.fontWeight,
+  fontStyle: block.fontStyle || fallback.fontStyle,
+  textColor: block.textColor || fallback.textColor,
+});
+
+export const normalizeCategoryStyles = (styles = {}) => ({
+  name: normalizeFontBlock(styles.name, defaultCategoryStyles.name),
+  tagline: normalizeFontBlock(styles.tagline, defaultCategoryStyles.tagline),
+});
+
 // ─── Helper: get a valid auth header ────────────────────────────────────────
 const normalizeToken = (value) => {
   if (typeof value !== "string") return "";
@@ -123,6 +141,7 @@ export const fetchCategories = createAsyncThunk(
               image: toImageUrl(cat.image),
               icon: "Folder",
               bestseller: Boolean(cat.bestseller),
+              styles: normalizeCategoryStyles(cat.styles),
               createdAt: cat.createdAt || "",
               updatedAt: cat.updatedAt || "",
             };
@@ -143,6 +162,7 @@ export const createCategory = createAsyncThunk(
       body.append("tagline", categoryData.tagline);
       body.append("themecolor", categoryData.color);
       body.append("bestseller", String(Boolean(categoryData.bestseller)));
+      body.append("styles", JSON.stringify(normalizeCategoryStyles(categoryData.styles)));
       if (categoryData.imageFile) {
         body.append("User_image", categoryData.imageFile);
       }
@@ -173,6 +193,7 @@ export const updateCategory = createAsyncThunk(
       body.append("tagline", categoryData.tagline);
       body.append("themecolor", categoryData.color);
       body.append("bestseller", String(Boolean(categoryData.bestseller)));
+      body.append("styles", JSON.stringify(normalizeCategoryStyles(categoryData.styles)));
       if (categoryData.imageFile) {
         body.append("User_image", categoryData.imageFile);
       }

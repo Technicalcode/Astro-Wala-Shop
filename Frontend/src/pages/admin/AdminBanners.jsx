@@ -1,10 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { ImageIcon, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ImageIcon, Pencil, Plus, Trash2, X, Type, RotateCcw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createBanner,
   deleteBanner,
   fetchBanners,
+  defaultBannerStyles,
+  normalizeBannerStyles,
   selectBannerError,
   selectBannerLoading,
   selectBannerSlides,
@@ -27,6 +29,7 @@ const emptyForm = {
   overlayOpacity: 0,
   order: 0,
   isActive: true,
+  styles: defaultBannerStyles,
 };
 
 const alignmentOptions = [
@@ -43,6 +46,97 @@ const alignmentOptions = [
 
 const getPreviewImage = (banner) => banner.rawBg || "";
 
+const fontFamilyOptions = [
+  { value: "default", label: "Default" },
+  { value: "serif", label: "Serif" },
+  { value: "sans", label: "Sans" },
+  { value: "mono", label: "Mono" },
+];
+
+const fontWeightOptions = [
+  { value: "normal", label: "Normal" },
+  { value: "medium", label: "Medium" },
+  { value: "semibold", label: "Semi Bold" },
+  { value: "bold", label: "Bold" },
+];
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toPreviewStyle = (style = defaultBannerStyles.title) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 16}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
+
+const fontLabels = {
+  title: "Banner Title Font",
+  subtitle: "Banner Subtitle Font",
+  cta: "Banner Button Text Font",
+};
+
+const previewText = {
+  title: "Astro Wala Shop",
+  subtitle: "Cosmic shopping, on time",
+  cta: "Shop Now",
+};
+
+const BannerFontControls = ({ label, value, onChange, maxSize = 64 }) => {
+  const update = (patch) => onChange({ ...value, ...patch });
+
+  return (
+    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+      <p className="mb-3 text-xs font-semibold uppercase text-gray-500">{label}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <select value={value.fontFamily} onChange={(e) => update({ fontFamily: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontFamilyOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <input type="number" min="1" max={maxSize} value={value.fontSize} onChange={(e) => update({ fontSize: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white" placeholder="Size" />
+        <select value={value.fontWeight} onChange={(e) => update({ fontWeight: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontWeightOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <select value={value.fontStyle} onChange={(e) => update({ fontStyle: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          <option value="normal">Normal</option>
+          <option value="italic">Italic</option>
+        </select>
+        <div className="sm:col-span-2 flex gap-2">
+          <input type="color" value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="h-10 w-12 rounded border border-gray-300 bg-white p-1" />
+          <input value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="min-w-0 flex-1 border border-gray-300 rounded px-2 py-2 text-sm font-mono bg-white" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FontButton = ({ onClick, label }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="shrink-0 inline-flex h-10 w-10 items-center justify-center rounded border border-indigo-100 bg-indigo-50 text-brand hover:bg-indigo-100"
+    title={label}
+    aria-label={label}
+  >
+    <Type size={17} />
+  </button>
+);
+
 export default function AdminBanners() {
   const dispatch = useDispatch();
   const loading = useSelector(selectBannerLoading);
@@ -55,6 +149,7 @@ export default function AdminBanners() {
   const [preview, setPreview] = useState("");
   const [editingImageSrc, setEditingImageSrc] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [activeFontKey, setActiveFontKey] = useState(null);
 
   const [pendingCreates, setPendingCreates] = useState([]);
   const [pendingUpdates, setPendingUpdates] = useState({});
@@ -87,6 +182,7 @@ export default function AdminBanners() {
     setForm(emptyForm);
     setImageFile(null);
     setPreview("");
+    setActiveFontKey(null);
     setShowForm(true);
   };
 
@@ -105,9 +201,15 @@ export default function AdminBanners() {
       overlayOpacity: Number(banner.overlayOpacity) || 0,
       order: Number(banner.order) || 0,
       isActive: banner.isActive !== false,
+      styles: normalizeBannerStyles(banner.styles, {
+        titleColor: banner.titleColor,
+        subtitleColor: banner.subtitleColor,
+        ctaText: banner.ctaText,
+      }),
     });
     setImageFile(null);
     setPreview(getPreviewImage(banner));
+    setActiveFontKey(null);
     setShowForm(true);
   };
 
@@ -142,6 +244,21 @@ export default function AdminBanners() {
     setForm((current) => ({
       ...current,
       [name]: type === "checkbox" ? checked : value,
+      styles:
+        name === "titleColor" || name === "subtitleColor" || name === "ctaText"
+          ? {
+              ...normalizeBannerStyles(current.styles, current),
+              ...(name === "titleColor"
+                ? { title: { ...normalizeBannerStyles(current.styles, current).title, textColor: value } }
+                : {}),
+              ...(name === "subtitleColor"
+                ? { subtitle: { ...normalizeBannerStyles(current.styles, current).subtitle, textColor: value } }
+                : {}),
+              ...(name === "ctaText"
+                ? { cta: { ...normalizeBannerStyles(current.styles, current).cta, textColor: value } }
+                : {}),
+            }
+          : current.styles,
     }));
   };
 
@@ -183,6 +300,28 @@ export default function AdminBanners() {
     }
 
     setShowForm(false);
+    setActiveFontKey(null);
+  };
+
+  const updateBannerFont = (key, value) => {
+    setForm((current) => {
+      const nextStyles = {
+        ...normalizeBannerStyles(current.styles, current),
+        [key]: value,
+      };
+      return {
+        ...current,
+        styles: nextStyles,
+        ...(key === "title" ? { titleColor: value.textColor } : {}),
+        ...(key === "subtitle" ? { subtitleColor: value.textColor } : {}),
+        ...(key === "cta" ? { ctaText: value.textColor } : {}),
+      };
+    });
+  };
+
+  const resetBannerFont = (key) => {
+    const fallback = defaultBannerStyles[key];
+    updateBannerFont(key, fallback);
   };
 
   const handleDelete = async (id) => {
@@ -414,7 +553,7 @@ export default function AdminBanners() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-md w-full max-w-3xl p-5 relative shadow-xl my-8">
             <button
-              onClick={() => setShowForm(false)}
+              onClick={() => { setShowForm(false); setActiveFontKey(null); }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
               aria-label="Close banner form"
             >
@@ -456,7 +595,10 @@ export default function AdminBanners() {
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
-                <input name="title" value={form.title} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                <div className="flex gap-2">
+                  <input name="title" value={form.title} onChange={handleChange} className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm" />
+                  <FontButton label="Edit banner title font" onClick={() => setActiveFontKey("title")} />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Title Color</label>
@@ -465,7 +607,10 @@ export default function AdminBanners() {
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle</label>
-                <input name="subtitle" value={form.subtitle} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                <div className="flex gap-2">
+                  <input name="subtitle" value={form.subtitle} onChange={handleChange} className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm" />
+                  <FontButton label="Edit banner subtitle font" onClick={() => setActiveFontKey("subtitle")} />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle Color</label>
@@ -474,7 +619,10 @@ export default function AdminBanners() {
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Button Text</label>
-                <input name="cta" value={form.cta} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                <div className="flex gap-2">
+                  <input name="cta" value={form.cta} onChange={handleChange} className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm" />
+                  <FontButton label="Edit banner button text font" onClick={() => setActiveFontKey("cta")} />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Button Link</label>
@@ -513,7 +661,7 @@ export default function AdminBanners() {
               </label>
 
               <div className="md:col-span-2 flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-sm text-sm">
+                <button type="button" onClick={() => { setShowForm(false); setActiveFontKey(null); }} className="border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-sm text-sm">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="bg-brand text-white font-semibold px-5 py-2 rounded-sm text-sm disabled:opacity-60">
@@ -521,6 +669,59 @@ export default function AdminBanners() {
                 </button>
               </div>
             </form>
+
+            {activeFontKey && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-black/30 p-4">
+                <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-2xl">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h3 className="text-base font-semibold text-gray-900">{fontLabels[activeFontKey]}</h3>
+                    <button
+                      type="button"
+                      onClick={() => setActiveFontKey(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                      aria-label="Close font editor"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Live Preview</p>
+                    <p style={toPreviewStyle(normalizeBannerStyles(form.styles, form)[activeFontKey])}>
+                      {activeFontKey === "title"
+                        ? form.title || previewText.title
+                        : activeFontKey === "subtitle"
+                          ? form.subtitle || previewText.subtitle
+                          : form.cta || previewText.cta}
+                    </p>
+                  </div>
+
+                  <BannerFontControls
+                    label={fontLabels[activeFontKey]}
+                    value={normalizeBannerStyles(form.styles, form)[activeFontKey]}
+                    maxSize={activeFontKey === "title" ? 96 : 64}
+                    onChange={(value) => updateBannerFont(activeFontKey, value)}
+                  />
+
+                  <div className="mt-5 flex justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => resetBannerFont(activeFontKey)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      <RotateCcw size={15} /> Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveFontKey(null)}
+                      className="rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -21,6 +21,23 @@ const Categoty = new mongoose.Schema(
       default: false,
     },
 
+    styles: {
+      name: {
+        fontFamily: { type: String, default: "default" },
+        fontSize: { type: Number, default: 14, min: 1, max: 96 },
+        fontWeight: { type: String, default: "semibold" },
+        fontStyle: { type: String, default: "normal" },
+        textColor: { type: String, default: "#1F2937" },
+      },
+      tagline: {
+        fontFamily: { type: String, default: "default" },
+        fontSize: { type: Number, default: 13, min: 1, max: 64 },
+        fontWeight: { type: String, default: "normal" },
+        fontStyle: { type: String, default: "normal" },
+        textColor: { type: String, default: "#4B5563" },
+      },
+    },
+
     image: {
       type: String,
       required: true,

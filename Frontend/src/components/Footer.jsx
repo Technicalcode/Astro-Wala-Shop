@@ -3,55 +3,88 @@ import { Phone, Mail, MapPin, Send, Sparkles, ShieldCheck, Truck, RotateCcw, Bad
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPolicies, selectAllPolicies } from "../store/policySlice";
+import { fetchFooterSettings, selectFooterSettings } from "../store/footerSlice";
 import Editable from "./editable/Editable";
 
-const staticColumns = [
-  {
-    title: "ABOUT",
-    links: [
-      { label: "Contact Us", to: "/contact" },
-      { label: "About Astro Wala Shop", to: "/info/about" },
-      { label: "Careers", to: "/info/careers" },
-      { label: "Press", to: "/info/press" },
-    ],
-  },
-  {
-    title: "HELP",
-    links: [
-      { label: "Payments", to: "/info/payments" },
-      { label: "Shipping", to: "/info/shipping" },
-      { label: "Cancellation & Returns", to: "/info/returns" },
-      { label: "FAQ", to: "/info/faq" },
-    ],
-  },
-];
+const badgeIcons = {
+  shield: ShieldCheck,
+  truck: Truck,
+  return: RotateCcw,
+  verified: BadgeCheck,
+};
 
-const trustBadges = [
-  { icon: ShieldCheck, label: "Certified Products" },
-  { icon: Truck, label: "Free Delivery" },
-  { icon: RotateCcw, label: "7 Day Returns" },
-  { icon: BadgeCheck, label: "Verified Astrologers" },
-];
+const sortByPosition = (items = []) =>
+  [...items].sort((a, b) => (Number(a.position) || 0) - (Number(b.position) || 0));
+
+const isExternalLink = (to = "") => /^https?:\/\//i.test(to);
+
+const hiddenPolicySlugs = new Set(["payments", "about"]);
+
+const isHiddenPolicyLink = (link = {}) => {
+  const slug = String(link.slug || link.to || "")
+    .split("/")
+    .filter(Boolean)
+    .pop()
+    ?.toLowerCase();
+  const label = String(link.label || link.title || "").trim().toLowerCase();
+
+  return hiddenPolicySlugs.has(slug) || label === "payments" || label === "about us";
+};
+
+const FooterLink = ({ to, children, className }) => {
+  if (isExternalLink(to)) {
+    return (
+      <a href={to} target="_blank" rel="noopener noreferrer" className={className}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
+  );
+};
 
 export default function Footer() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const policies = useSelector(selectAllPolicies);
+  const footerSettings = useSelector(selectFooterSettings);
 
-  const sortedPolicies = [...(policies || [])].sort((a, b) => a.position - b.position);
+  const sortedPolicies = sortByPosition(policies || []);
+  const trustBadges = sortByPosition(footerSettings.trustBadges || [])
+    .filter((badge) => badge.enabled)
+    .map((badge) => ({ ...badge, icon: badgeIcons[badge.icon] || ShieldCheck }));
 
   useEffect(() => {
     dispatch(fetchPolicies());
+    dispatch(fetchFooterSettings());
   }, [dispatch]);
   
-  const columns = [
-    ...staticColumns,
-    {
-      title: "POLICY",
-      links: sortedPolicies.map(p => ({ label: p.title, to: `/info/${p.slug}` }))
-    }
-  ];
+  const columns = sortByPosition(footerSettings.sections || [])
+    .filter((section) => section.enabled)
+    .map((section) => {
+      const configuredLinks = sortByPosition(section.links || []).filter((link) => link.enabled);
+
+      return {
+        ...section,
+        links:
+          section.key === "policy" && configuredLinks.length === 0
+            ? sortedPolicies
+                .filter((p) => !isHiddenPolicyLink(p))
+                .map((p) => ({ label: p.title, to: `/info/${p.slug}` }))
+            : section.key === "policy"
+              ? configuredLinks.filter((link) => !isHiddenPolicyLink(link))
+              : configuredLinks,
+      };
+    });
+
+  const contact = footerSettings.contact || {};
+  const phoneHref = `tel:${String(contact.phone || "").replace(/[^\d+]/g, "")}`;
+  const mailHref = `mailto:${contact.email || ""}`;
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -83,11 +116,11 @@ export default function Footer() {
             <ul className="space-y-2">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link to={l.to} className="hover:text-white transition-colors">
+                  <FooterLink to={l.to} className="hover:text-white transition-colors">
                     <Editable as="span" kind="button" group="footer-bg" label="Footer">
                       {l.label}
                     </Editable>
-                  </Link>
+                  </FooterLink>
                 </li>
               ))}
             </ul>
@@ -100,35 +133,37 @@ export default function Footer() {
           </Editable>
           <ul className="space-y-2.5 text-gray-400">
             <li>
-              <a href="tel:+916398393497" className="flex items-start gap-2 hover:text-white transition-colors">
+              <a href={phoneHref} className="flex items-start gap-2 hover:text-white transition-colors">
                 <Phone size={14} className="mt-0.5 shrink-0" />
                 <Editable as="span" kind="button" group="footer-bg" label="Footer">
-                  +91 63983 93497
+                  {contact.phone}
                 </Editable>
               </a>
             </li>
             <li>
-              <a href="mailto:support@astromart.in" className="flex items-start gap-2 hover:text-white transition-colors">
+              <a href={mailHref} className="flex items-start gap-2 hover:text-white transition-colors">
                 <Mail size={14} className="mt-0.5 shrink-0" />
                 <Editable as="span" kind="button" group="footer-bg" label="Footer">
-                  support@astromart.in
+                  {contact.email}
                 </Editable>
               </a>
             </li>
             <li>
               <a
-                href="https://www.google.com/maps/search/?api=1&query=IDPL+Rishikesh+Uttarakhand"
+                href={contact.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-2 hover:text-white transition-colors"
               >
                 <MapPin size={14} className="mt-0.5 shrink-0" />
                 <Editable as="span" kind="button" group="footer-bg" label="Footer">
-                  Astro Wala Shop Commerce Pvt. Ltd.
-                  <br />
-                  IDPL, Rishikesh,
-                  <br />
-                  Uttarakhand 249201
+                  {String(contact.address || "")
+                    .split("\n")
+                    .map((line, index) => (
+                      <span key={`${line}-${index}`} className="block">
+                        {line}
+                      </span>
+                    ))}
                 </Editable>
               </a>
             </li>
@@ -150,7 +185,7 @@ export default function Footer() {
               Astro<span className="text-gold-light">Wala Shop</span>
             </Editable>
           </div>
-          {subscribed ? (
+          {footerSettings.newsletterEnabled === false ? null : subscribed ? (
             <p className="text-sm text-green-400">Subscribed! Watch your inbox for updates.</p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex w-full md:w-auto gap-2">

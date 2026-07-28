@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, FileText, MonitorSmartphone, Palette, TrendingUp, Eye, ChevronDown, Bell } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Sparkles, LogOut, Menu, X, Pencil, Home, FolderTree, Boxes, Tag, Star, Truck, Users, Activity, ImageIcon, MonitorSmartphone, Palette, TrendingUp, Eye, ChevronDown, Bell, MessageSquare, PanelBottom } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserDisplayName, selectUser, logout } from "../../store/authSlice";
 import { selectEditMode, toggleEditMode } from "../../store/editableStyleSlice";
@@ -46,12 +46,13 @@ const navGroups = [
       { to: "/admin/users", label: "Users", icon: Users },
       { to: "/admin/referrals", label: "Referrals", icon: Users },
       { to: "/admin/reviews", label: "Reviews", icon: Star },
+      { to: "/admin/contact-messages", label: "Contact", icon: MessageSquare },
     ]
   },
   {
     title: "System",
     items: [
-      { to: "/admin/policies", label: "Policies", icon: FileText },
+      { to: "/admin/footer", label: "Footer", icon: PanelBottom },
       { to: "/admin/audit-logs", label: "Audit Logs", icon: Activity },
       { to: "/admin/login-activity", label: "Login Activity", icon: MonitorSmartphone },
     ]

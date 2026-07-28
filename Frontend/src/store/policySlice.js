@@ -8,6 +8,81 @@ const normalizeSlug = (value = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const defaultPolicyStyles = {
+  title: {
+    fontFamily: "default",
+    fontSize: 12,
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textColor: "#374151",
+  },
+  heading: {
+    fontFamily: "default",
+    fontSize: 24,
+    fontWeight: "bold",
+    fontStyle: "normal",
+    textColor: "#111827",
+  },
+  body: {
+    fontFamily: "default",
+    fontSize: 14,
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textColor: "#4B5563",
+  },
+};
+
+const normalizeFontBlock = (block = {}, fallback = defaultPolicyStyles.body) => ({
+  fontFamily: block.fontFamily || fallback.fontFamily,
+  fontSize: Number(block.fontSize) || fallback.fontSize,
+  fontWeight: block.fontWeight || fallback.fontWeight,
+  fontStyle: block.fontStyle || fallback.fontStyle,
+  textColor: block.textColor || fallback.textColor,
+});
+
+const normalizePolicyStyles = (styles = {}) => {
+  if (styles.fontFamily || styles.headingSize || styles.bodySize) {
+    return {
+      title: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: 12,
+          fontWeight: styles.fontWeight,
+          fontStyle: styles.fontStyle,
+          textColor: "#374151",
+        },
+        defaultPolicyStyles.title,
+      ),
+      heading: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: styles.headingSize,
+          fontWeight: "bold",
+          fontStyle: styles.fontStyle,
+          textColor: "#111827",
+        },
+        defaultPolicyStyles.heading,
+      ),
+      body: normalizeFontBlock(
+        {
+          fontFamily: styles.fontFamily,
+          fontSize: styles.bodySize,
+          fontWeight: styles.fontWeight,
+          fontStyle: styles.fontStyle,
+          textColor: styles.textColor,
+        },
+        defaultPolicyStyles.body,
+      ),
+    };
+  }
+
+  return {
+    title: normalizeFontBlock(styles.title, defaultPolicyStyles.title),
+    heading: normalizeFontBlock(styles.heading, defaultPolicyStyles.heading),
+    body: normalizeFontBlock(styles.body, defaultPolicyStyles.body),
+  };
+};
+
 const normalizePolicy = (policy = {}) => ({
   id: policy.id || policy._id || policy.slug,
   _id: policy._id || policy.id || "",
@@ -15,6 +90,7 @@ const normalizePolicy = (policy = {}) => ({
   title: policy.title || "",
   heading: policy.heading || "",
   content: policy.content || "",
+  styles: normalizePolicyStyles(policy.styles),
   position: Number(policy.position) || 0,
   adminId: policy.adminId || "",
   lastEditedByAdminId: policy.lastEditedByAdminId || "",
@@ -27,6 +103,7 @@ const buildPolicyPayload = (policy = {}) => ({
   slug: normalizeSlug(policy.slug),
   heading: policy.heading?.trim(),
   content: policy.content,
+  styles: normalizePolicyStyles(policy.styles),
   position: Number(policy.position) || 0,
 });
 

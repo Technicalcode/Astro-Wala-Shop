@@ -19,6 +19,29 @@ const BannerSchema = new mongoose.Schema(
     cta: String,
     ctaBg: String,
     ctaText: String,
+    styles: {
+      title: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 36, min: 1, max: 96 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "bold" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#ffffff" },
+      },
+      subtitle: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 16, min: 1, max: 64 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "normal" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#f3f4f6" },
+      },
+      cta: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 16, min: 1, max: 64 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "bold" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#000000" },
+      },
+    },
     overlayOpacity: Number,
     alignment: String,
     to: {

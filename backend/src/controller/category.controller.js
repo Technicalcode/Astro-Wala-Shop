@@ -4,9 +4,53 @@ import { deleteImageAsset, saveImageAsset } from "../utils/image-upload.js";
 const toBoolean = (value) =>
   value === true || value === "true" || value === "1" || value === 1;
 
+const clamp = (value, fallback, max) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.min(Math.max(numeric, 1), max);
+};
+
+const normalizeCategoryStyles = (value) => {
+  let styles = value;
+  if (typeof value === "string") {
+    try {
+      styles = JSON.parse(value);
+    } catch (_) {
+      styles = {};
+    }
+  }
+
+  const normalizeBlock = (block = {}, fallback) => ({
+    fontFamily: block.fontFamily || fallback.fontFamily,
+    fontSize: clamp(block.fontSize, fallback.fontSize, fallback.maxSize),
+    fontWeight: block.fontWeight || fallback.fontWeight,
+    fontStyle: block.fontStyle || fallback.fontStyle,
+    textColor: block.textColor || fallback.textColor,
+  });
+
+  return {
+    name: normalizeBlock(styles?.name, {
+      fontFamily: "default",
+      fontSize: 14,
+      maxSize: 96,
+      fontWeight: "semibold",
+      fontStyle: "normal",
+      textColor: "#1F2937",
+    }),
+    tagline: normalizeBlock(styles?.tagline, {
+      fontFamily: "default",
+      fontSize: 13,
+      maxSize: 64,
+      fontWeight: "normal",
+      fontStyle: "normal",
+      textColor: "#4B5563",
+    }),
+  };
+};
+
 export const CreateCategory = async (req, res) => {
   try {
-    const { name, tagline, themecolor, bestseller } = req.body || {};
+    const { name, tagline, themecolor, bestseller, styles } = req.body || {};
 
     if (!name || !tagline || !themecolor) {
       return res.status(400).json({
@@ -37,6 +81,7 @@ export const CreateCategory = async (req, res) => {
       tagline: tagline,
       themecolor: themecolor,
       bestseller: toBoolean(bestseller),
+      styles: normalizeCategoryStyles(styles),
       image: imageResult.image,
       public_id: imageResult.public_id,
     });
@@ -97,7 +142,7 @@ export const GetAllCategory = async (req, res) => {
 export const UpdateCategory = async (req, res) => {
   try {
     const cateid = req.params.categoryId;
-    const { name, tagline, themecolor, bestseller } = req.body || {};
+    const { name, tagline, themecolor, bestseller, styles } = req.body || {};
 
     // if (!name || !tagline || !themecolor) {
     //   return res.status(400).json({
@@ -116,6 +161,7 @@ export const UpdateCategory = async (req, res) => {
     if (tagline !== undefined) updateData.tagline = tagline;
     if (themecolor !== undefined) updateData.themecolor = themecolor;
     if (bestseller !== undefined) updateData.bestseller = toBoolean(bestseller);
+    if (styles !== undefined) updateData.styles = normalizeCategoryStyles(styles);
 
     if (req.file) {
       const existingCategory = await catmodel.findById(cateid);

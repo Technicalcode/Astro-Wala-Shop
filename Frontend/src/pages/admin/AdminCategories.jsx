@@ -1,8 +1,8 @@
 import { lazy, Suspense, useState, useEffect, useRef } from "react";
-import { Plus, Pencil, Trash2, X, FolderTree } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderTree, Type, RotateCcw } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectCategories, createCategory, updateCategory, deleteCategory, fetchCategories } from "../../store/categoriesSlice";
+import { selectCategories, createCategory, updateCategory, deleteCategory, fetchCategories, defaultCategoryStyles, normalizeCategoryStyles } from "../../store/categoriesSlice";
 import { fileToCompressedDataUrl } from "../../utils/imageUtils";
 import Editable from "../../components/editable/Editable";
 import { COMMON_CLOUDINARY_IMAGE_URL, toAssetUrl } from "../../config/api";
@@ -10,6 +10,101 @@ import { COMMON_CLOUDINARY_IMAGE_URL, toAssetUrl } from "../../config/api";
 const ImageEditorModal = lazy(() => import("../../components/ImageEditorModal"));
 
 const PAGE_SIZE = 10;
+
+const emptyForm = {
+  id: "",
+  name: "",
+  tagline: "",
+  color: "#000000",
+  image: "",
+  imageFile: null,
+  bestseller: false,
+  styles: defaultCategoryStyles,
+};
+
+const fontFamilyOptions = [
+  { value: "default", label: "Default" },
+  { value: "serif", label: "Serif" },
+  { value: "sans", label: "Sans" },
+  { value: "mono", label: "Mono" },
+];
+
+const fontWeightOptions = [
+  { value: "normal", label: "Normal" },
+  { value: "medium", label: "Medium" },
+  { value: "semibold", label: "Semi Bold" },
+  { value: "bold", label: "Bold" },
+];
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toPreviewStyle = (style = defaultCategoryStyles.name) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
+
+const fontLabels = {
+  name: "Category Name Font",
+  tagline: "Category Tagline Font",
+};
+
+const CategoryFontControls = ({ label, value, onChange, maxSize = 64 }) => {
+  const update = (patch) => onChange({ ...value, ...patch });
+
+  return (
+    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+      <p className="mb-3 text-xs font-semibold uppercase text-gray-500">{label}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <select value={value.fontFamily} onChange={(e) => update({ fontFamily: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontFamilyOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <input type="number" min="1" max={maxSize} value={value.fontSize} onChange={(e) => update({ fontSize: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white" placeholder="Size" />
+        <select value={value.fontWeight} onChange={(e) => update({ fontWeight: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          {fontWeightOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <select value={value.fontStyle} onChange={(e) => update({ fontStyle: e.target.value })} className="border border-gray-300 rounded px-2 py-2 text-sm bg-white">
+          <option value="normal">Normal</option>
+          <option value="italic">Italic</option>
+        </select>
+        <div className="sm:col-span-2 flex gap-2">
+          <input type="color" value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="h-10 w-12 rounded border border-gray-300 bg-white p-1" />
+          <input value={value.textColor} onChange={(e) => update({ textColor: e.target.value })} className="min-w-0 flex-1 border border-gray-300 rounded px-2 py-2 text-sm font-mono bg-white" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FontButton = ({ onClick, label }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="shrink-0 inline-flex h-10 w-10 items-center justify-center rounded border border-indigo-100 bg-indigo-50 text-brand hover:bg-indigo-100"
+    title={label}
+    aria-label={label}
+  >
+    <Type size={17} />
+  </button>
+);
 
 const getDateKey = (value) => {
   if (!value) return "";
@@ -41,7 +136,8 @@ export default function AdminCategories() {
   const cats = useSelector(selectCategories);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ id: "", name: "", tagline: "", color: "#000000", image: "", imageFile: null, bestseller: false });
+  const [form, setForm] = useState(emptyForm);
+  const [activeFontKey, setActiveFontKey] = useState(null);
   const [editingImageSrc, setEditingImageSrc] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortFilter, setSortFilter] = useState("placeholder");
@@ -142,14 +238,16 @@ export default function AdminCategories() {
   };
 
   const openAdd = () => {
-    setForm({ id: "", name: "", tagline: "", color: "#2E6B5C", image: "", imageFile: null, bestseller: false });
+    setForm({ ...emptyForm, color: "#2E6B5C", styles: normalizeCategoryStyles(defaultCategoryStyles) });
     setEditingId(null);
+    setActiveFontKey(null);
     setShowForm(true);
   };
 
   const openEdit = (c) => {
-    setForm({ ...c, bestseller: Boolean(c.bestseller), imageFile: c.imageFile || null });
+    setForm({ ...c, bestseller: Boolean(c.bestseller), imageFile: c.imageFile || null, styles: normalizeCategoryStyles(c.styles) });
     setEditingId(c.id);
+    setActiveFontKey(null);
     setShowForm(true);
   };
 
@@ -196,6 +294,21 @@ export default function AdminCategories() {
       ]);
     }
     setShowForm(false);
+    setActiveFontKey(null);
+  };
+
+  const updateCategoryFont = (key, value) => {
+    setForm((current) => ({
+      ...current,
+      styles: {
+        ...normalizeCategoryStyles(current.styles),
+        [key]: value,
+      },
+    }));
+  };
+
+  const resetCategoryFont = (key) => {
+    updateCategoryFont(key, defaultCategoryStyles[key]);
   };
 
   const discardChanges = () => {
@@ -374,7 +487,7 @@ export default function AdminCategories() {
                       )}
                     </div>
                     <div>
-                      <Editable as="span" group="admin-cat-name" kind="button" label="Category Name" className="font-bold text-base text-gray-900 group-hover:text-brand transition-colors">{c.name}</Editable>
+                      <Editable as="span" group="admin-cat-name" kind="button" label="Category Name" className="font-bold text-base text-gray-900 group-hover:text-brand transition-colors" style={toPreviewStyle(normalizeCategoryStyles(c.styles).name)}>{c.name}</Editable>
                       {c._pendingAction && (
                         <span className="mt-1.5 w-max inline-flex rounded-md bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand">
                           {c._pendingAction === "create" ? "Pending Creation" : "Pending Update"}
@@ -383,7 +496,7 @@ export default function AdminCategories() {
                     </div>
                   </div>
                 </td>
-                <Editable as="td" group="admin-cat-tagline" kind="button" label="Category Tagline" className="py-4 px-6 text-gray-600 font-medium">{c.tagline}</Editable>
+                <Editable as="td" group="admin-cat-tagline" kind="button" label="Category Tagline" className="py-4 px-6 text-gray-600 font-medium" style={toPreviewStyle(normalizeCategoryStyles(c.styles).tagline)}>{c.tagline}</Editable>
                 <td className="py-4 px-6">
                   {c.bestseller ? (
                     <span className="inline-flex rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700">
@@ -461,7 +574,7 @@ export default function AdminCategories() {
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <Editable as="div" kind="button" id="admin-cat-modal-bg" label="Category Modal Background" className="bg-white rounded-md w-full max-w-sm p-5 relative shadow-xl">
-            <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <button onClick={() => { setShowForm(false); setActiveFontKey(null); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
               <X size={18} />
             </button>
             <h2 className="font-semibold text-gray-900 mb-4">{editingId ? "Edit Category" : "Add Category"}</h2>
@@ -469,11 +582,17 @@ export default function AdminCategories() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Name</label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
+                <div className="flex gap-2">
+                  <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
+                  <FontButton label="Edit category name font" onClick={() => setActiveFontKey("name")} />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Tagline</label>
-                <input required value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
+                <div className="flex gap-2">
+                  <input required value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} className="min-w-0 flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-brand" />
+                  <FontButton label="Edit category tagline font" onClick={() => setActiveFontKey("tagline")} />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Theme Color</label>
@@ -517,6 +636,57 @@ export default function AdminCategories() {
                 {editingId ? "Stage Changes" : "Add to Pending"}
               </Editable>
             </form>
+
+            {activeFontKey && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-black/30 p-4">
+                <div className="w-full rounded-xl bg-white p-4 shadow-2xl">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h3 className="text-base font-semibold text-gray-900">{fontLabels[activeFontKey]}</h3>
+                    <button
+                      type="button"
+                      onClick={() => setActiveFontKey(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                      aria-label="Close font editor"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Live Preview</p>
+                    <p style={toPreviewStyle(normalizeCategoryStyles(form.styles)[activeFontKey])}>
+                      {activeFontKey === "name"
+                        ? form.name || "Gemstones"
+                        : form.tagline || "Find your lucky birthstone and planetary gems"}
+                    </p>
+                  </div>
+
+                  <CategoryFontControls
+                    label={fontLabels[activeFontKey]}
+                    value={normalizeCategoryStyles(form.styles)[activeFontKey]}
+                    maxSize={activeFontKey === "name" ? 96 : 64}
+                    onChange={(value) => updateCategoryFont(activeFontKey, value)}
+                  />
+
+                  <div className="mt-5 flex justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => resetCategoryFont(activeFontKey)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      <RotateCcw size={15} /> Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveFontKey(null)}
+                      className="rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </Editable>
         </div>
       )}

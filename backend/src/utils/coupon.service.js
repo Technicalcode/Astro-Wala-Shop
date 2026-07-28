@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import CouponModel from "../Model/coupon.model.js";
+import OrderModel from "../Model/order.model.js";
 import ProductModel from "../Model/product.model.js";
 
 export const normalizeCouponId = (couponId = "") =>
@@ -18,6 +19,17 @@ const getQuantityFromItem = (item = {}) => Math.max(1, Number(item.quantity || i
 
 const getUserUsage = (coupon, userId) =>
   coupon.usedBy.find((usage) => String(usage.user) === String(userId));
+
+const hasUserPlacedOrderWithCoupon = async ({ couponId, userId, session }) => {
+  const query = {
+    user: userId,
+    coupon: normalizeCouponId(couponId),
+    paymentStatus: { $ne: "Failed" },
+  };
+  const lookup = OrderModel.exists(query);
+  if (session) lookup.session(session);
+  return Boolean(await lookup);
+};
 
 const getCouponTargetType = (coupon) => {
   if ((!coupon.targetType || coupon.targetType === "all") && coupon.product_id && !coupon.category_id) {
@@ -50,6 +62,7 @@ export const calculateCouponDiscount = async ({
   userId,
   items = [],
   redeem = false,
+  session = null,
 }) => {
   const normalizedCouponId = normalizeCouponId(couponId);
   if (!normalizedCouponId) {
@@ -60,7 +73,9 @@ export const calculateCouponDiscount = async ({
     throw couponError("Invalid user for coupon");
   }
 
-  const coupon = await CouponModel.findOne({ couponId: normalizedCouponId });
+  const couponQuery = CouponModel.findOne({ couponId: normalizedCouponId });
+  if (session) couponQuery.session(session);
+  const coupon = await couponQuery;
   if (!coupon) {
     throw couponError("Invalid coupon code", 404);
   }
@@ -73,8 +88,13 @@ export const calculateCouponDiscount = async ({
 
   const usage = getUserUsage(coupon, userId);
   const usedCount = Number(usage?.count || 0);
-  if (usedCount >= coupon.maxLimit) {
-    throw couponError("You have already used this coupon maximum allowed times");
+  const alreadyUsedInOrder = await hasUserPlacedOrderWithCoupon({
+    couponId: normalizedCouponId,
+    userId,
+    session,
+  });
+  if (usedCount >= 1 || alreadyUsedInOrder) {
+    throw couponError("You have already used this coupon");
   }
 
   const targetType = getCouponTargetType(coupon);
@@ -94,7 +114,9 @@ export const calculateCouponDiscount = async ({
     productFilter.category_id = coupon.category_id;
   }
 
-  const products = await ProductModel.find(productFilter).select("name price image brand category_id");
+  const productsQuery = ProductModel.find(productFilter).select("name price image brand category_id");
+  if (session) productsQuery.session(session);
+  const products = await productsQuery;
   const productMap = new Map(products.map((product) => [String(product._id), product]));
 
   let eligibleQuantity = 0;
@@ -145,8 +167,8 @@ export const calculateCouponDiscount = async ({
       });
     }
 
-    coupon.usage = coupon.usedBy.length;
-    await coupon.save();
+    coupon.usage = coupon.usedBy.reduce((total, entry) => total + Number(entry.count || 0), 0);
+    await coupon.save(session ? { session } : undefined);
   }
 
   return {
@@ -166,6 +188,6 @@ export const calculateCouponDiscount = async ({
     eligibleQuantity,
     minPurchaseAmount,
     eligibleSubtotal,
-    remainingUses: Math.max(0, coupon.maxLimit - usedCount - (redeem ? 1 : 0)),
+    remainingUses: Math.max(0, 1 - usedCount - (redeem ? 1 : 0)),
   };
 };

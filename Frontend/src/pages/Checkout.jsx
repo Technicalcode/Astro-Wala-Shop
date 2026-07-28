@@ -12,7 +12,7 @@ import {
   selectCartLoading,
   selectCartTotals,
 } from "../store/cartSlice";
-import { selectAvailableCoupons } from "../store/couponSlice";
+import { fetchAvailableCoupons, selectAvailableCoupons } from "../store/couponSlice";
 import { addApiOrder, createOrder } from "../store/ordersSlice";
 import { getUserSavedName, selectUser } from "../store/authSlice";
 import { fetchReferralStats, selectWalletBalance } from "../store/referralSlice";
@@ -316,6 +316,7 @@ export default function Checkout() {
       }
 
       const clearResult = await dispatch(clearCart());
+      dispatch(fetchAvailableCoupons());
       if (clearResult.type?.endsWith("/rejected")) {
         showErrorPopup(
           "Your order was placed, but the cart could not be synchronized.",

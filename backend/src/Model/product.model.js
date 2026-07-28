@@ -41,6 +41,44 @@ const productSchema = new mango.Schema(
       required: true,
     },
 
+    styles: {
+      name: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 14, min: 1, max: 96 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "normal" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#1F2937" },
+      },
+      brand: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 12, min: 1, max: 64 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "normal" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#6B7280" },
+      },
+      price: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 18, min: 1, max: 96 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "bold" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#111827" },
+      },
+      highlights: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 14, min: 1, max: 64 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "normal" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#4B5563" },
+      },
+      description: {
+        fontFamily: { type: String, enum: ["default", "serif", "sans", "mono"], default: "default" },
+        fontSize: { type: Number, default: 14, min: 1, max: 64 },
+        fontWeight: { type: String, enum: ["normal", "medium", "semibold", "bold"], default: "normal" },
+        fontStyle: { type: String, enum: ["normal", "italic"], default: "normal" },
+        textColor: { type: String, default: "#4B5563" },
+      },
+    },
+
     stock: {
       type: Number,
       default: 0,

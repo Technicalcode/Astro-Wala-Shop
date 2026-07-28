@@ -25,6 +25,26 @@ const fallbackSlide = {
   order: 0,
 };
 
+export const defaultBannerStyles = {
+  title: { fontFamily: "default", fontSize: 36, fontWeight: "bold", fontStyle: "normal", textColor: "#ffffff" },
+  subtitle: { fontFamily: "default", fontSize: 16, fontWeight: "normal", fontStyle: "normal", textColor: "#f3f4f6" },
+  cta: { fontFamily: "default", fontSize: 16, fontWeight: "bold", fontStyle: "normal", textColor: "#000000" },
+};
+
+const normalizeFontBlock = (block = {}, fallback = defaultBannerStyles.title) => ({
+  fontFamily: block.fontFamily || fallback.fontFamily,
+  fontSize: Number(block.fontSize) || fallback.fontSize,
+  fontWeight: block.fontWeight || fallback.fontWeight,
+  fontStyle: block.fontStyle || fallback.fontStyle,
+  textColor: block.textColor || fallback.textColor,
+});
+
+export const normalizeBannerStyles = (styles = {}, colors = {}) => ({
+  title: normalizeFontBlock(styles.title, { ...defaultBannerStyles.title, textColor: colors.titleColor || defaultBannerStyles.title.textColor }),
+  subtitle: normalizeFontBlock(styles.subtitle, { ...defaultBannerStyles.subtitle, textColor: colors.subtitleColor || defaultBannerStyles.subtitle.textColor }),
+  cta: normalizeFontBlock(styles.cta, { ...defaultBannerStyles.cta, textColor: colors.ctaText || defaultBannerStyles.cta.textColor }),
+});
+
 const toImageUrl = (image) => {
   const value = String(image || "").trim();
   if (value.startsWith("url(")) return value.slice(4, -1).replace(/^['"]|['"]$/g, "");
@@ -45,6 +65,11 @@ const normalizeBanner = (banner = {}) => {
     cta: banner.cta || "",
     ctaBg: banner.ctaBg || "#ffffff",
     ctaText: banner.ctaText || "#000000",
+    styles: normalizeBannerStyles(banner.styles, {
+      titleColor: banner.titleColor,
+      subtitleColor: banner.subtitleColor,
+      ctaText: banner.ctaText,
+    }),
     overlayOpacity: Number(banner.overlayOpacity) || 0,
     alignment: banner.alignment || "bottom-center",
     to: banner.to || "/",
@@ -60,7 +85,7 @@ const buildFormData = ({ form, imageFile }) => {
 
   Object.entries(form).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
-      body.append(key, value);
+      body.append(key, key === "styles" ? JSON.stringify(normalizeBannerStyles(value, form)) : value);
     }
   });
 

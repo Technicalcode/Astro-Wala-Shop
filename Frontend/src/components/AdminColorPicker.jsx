@@ -62,21 +62,27 @@ export default function AdminColorPicker() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-[120] flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
 
-          <div className="relative w-72 max-w-[85vw] h-full bg-white shadow-2xl p-5 overflow-y-auto animate-[slideIn_0.2s_ease-out]">
-            <div className="flex items-center justify-between mb-1">
+          <div className="relative h-full w-[min(360px,calc(100vw-16px))] bg-white shadow-2xl overflow-y-auto animate-[slideIn_0.2s_ease-out]">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-gray-100 bg-white px-5 py-4">
               <h3 className="font-semibold text-gray-900 text-sm">Site Background</h3>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <X size={18} />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 hover:text-gray-900"
+                aria-label="Close theme color picker"
+                title="Close"
+              >
+                <X size={19} />
               </button>
             </div>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-500 mb-4 px-5 pt-5">
               Admin only — pick a color below or enter a hex code to change the storefront background for everyone.
             </p>
 
-            <form onSubmit={handleCustomHexSubmit} className="mb-4 flex gap-2 items-center">
+            <form onSubmit={handleCustomHexSubmit} className="mb-4 flex gap-2 items-center px-5">
               <div className="relative flex-1 flex items-center min-w-0">
                 <input
                   type="color"
@@ -105,7 +111,7 @@ export default function AdminColorPicker() {
               </button>
             </form>
 
-            <div className="grid grid-cols-5 gap-2.5 mb-4">
+            <div className="grid grid-cols-5 gap-2.5 mb-4 px-5">
               {themeColors.map((c) => {
                 const selected = bgColor.toLowerCase() === c.hex.toLowerCase();
                 return (
@@ -132,7 +138,7 @@ export default function AdminColorPicker() {
             <button
               onClick={() => handleColorChange(DEFAULT_BG)}
               disabled={bgColor === DEFAULT_BG}
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-brand disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mx-5 mb-5 flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-brand disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <RotateCcw size={13} /> Reset to default
             </button>

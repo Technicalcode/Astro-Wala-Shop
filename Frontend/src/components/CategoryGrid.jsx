@@ -3,10 +3,32 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useSelector } from "react-redux";
-import { selectCategories, selectCategoriesLoading } from "../store/categoriesSlice";
+import { selectCategories, selectCategoriesLoading, normalizeCategoryStyles } from "../store/categoriesSlice";
 import Editable from "./editable/Editable";
 import { COMMON_CLOUDINARY_IMAGE_URL } from "../config/api";
 import PageLoadingState from "./PageLoadingState";
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 600,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
 
 function CategoryGrid() {
   const categories = useSelector(selectCategories);
@@ -114,6 +136,7 @@ function CategoryGrid() {
                 kind="button"
                 label="Category Label"
                 className="text-xs md:text-sm font-semibold text-center leading-tight max-w-full text-gray-800 rounded px-1"
+                style={toTextStyle(normalizeCategoryStyles(c.styles).name)}
               >
                 {c.name}
               </Editable>

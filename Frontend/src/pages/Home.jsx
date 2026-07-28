@@ -6,11 +6,33 @@ import CategoryGrid from "../components/CategoryGrid";
 import ProductRail from "../components/ProductRail";
 import { useSelector } from "react-redux";
 import { selectAllProducts, selectProductsLoading } from "../store/productsSlice";
-import { selectCategories } from "../store/categoriesSlice";
+import { selectCategories, normalizeCategoryStyles } from "../store/categoriesSlice";
 import { backendUrl, readApiResponse, trackedFetch } from "../config/api";
 
 const WhyChooseUs = lazy(() => import("../components/WhyChooseUs"));
 const TestimonialsSection = lazy(() => import("../components/TestimonialsSection"));
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
 
 export default function Home() {
   const allProducts = useSelector(selectAllProducts);
@@ -178,6 +200,8 @@ export default function Home() {
           key={category.id}
           title={category.name}
           subtitle={category.tagline}
+          titleStyle={toTextStyle(normalizeCategoryStyles(category.styles).name)}
+          subtitleStyle={toTextStyle(normalizeCategoryStyles(category.styles).tagline)}
           products={category.products}
           viewAllTo={`/category/${category.id}`}
           groupId={category.id}

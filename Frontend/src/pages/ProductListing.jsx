@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectProductsByCategory, selectProductsLoading } from "../store/productsSlice";
-import { selectCategoriesLoading, selectCategoryById } from "../store/categoriesSlice";
+import { selectCategoriesLoading, selectCategoryById, normalizeCategoryStyles } from "../store/categoriesSlice";
 import ProductCard from "../components/ProductCard";
 import Editable from "../components/editable/Editable";
 import Pagination from "../components/Pagination";
@@ -16,6 +16,28 @@ const SORT_OPTIONS = [
   { id: "price_high", label: "Price: High to Low" },
   { id: "rating", label: "Customer Rating" },
 ];
+
+const fontFamilyMap = {
+  default: undefined,
+  serif: "Georgia, Cambria, Times New Roman, serif",
+  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const fontWeightMap = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+};
+
+const toTextStyle = (style = {}) => ({
+  fontFamily: fontFamilyMap[style.fontFamily],
+  fontSize: `${Number(style.fontSize) || 14}px`,
+  fontWeight: fontWeightMap[style.fontWeight] || 400,
+  fontStyle: style.fontStyle || "normal",
+  color: style.textColor,
+});
 
 export default function ProductListing() {
   const { categoryId } = useParams();
@@ -203,7 +225,7 @@ export default function ProductListing() {
         <section className="flex-1">
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-5 mb-5 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="font-display font-bold text-2xl text-gray-900">{category.name}</h1>
+              <h1 className="font-display font-bold text-2xl text-gray-900" style={toTextStyle(normalizeCategoryStyles(category.styles).name)}>{category.name}</h1>
               <p className="text-sm text-gray-500 mt-1"><span className="font-semibold text-brand">{filtered.length}</span> products available</p>
             </div>
             <div className="flex items-center gap-3 text-sm overflow-x-auto custom-scrollbar max-w-full pb-1">

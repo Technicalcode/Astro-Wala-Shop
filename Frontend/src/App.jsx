@@ -65,10 +65,12 @@ const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminReturns = lazy(() => import("./pages/admin/AdminReturns"));
+const AdminContactMessages = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AdminAuditLogs"));
 const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
 const AdminPolicies = lazy(() => import("./pages/admin/AdminPolicies"));
+const AdminFooter = lazy(() => import("./pages/admin/AdminFooter"));
 const AdminLoginActivity = lazy(() => import("./pages/admin/AdminLoginActivity"));
 const AdminHomepage = lazy(() => import("./pages/admin/AdminHomepage"));
 const AdminTheme = lazy(() => import("./pages/admin/AdminTheme"));
@@ -217,12 +219,14 @@ export default function App() {
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="referrals" element={<AdminReferrals />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="contact-messages" element={<AdminContactMessages />} />
             <Route path="returns" element={<AdminReturns />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="login-activity" element={<AdminLoginActivity />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="policies" element={<AdminPolicies />} />
+            <Route path="footer" element={<AdminFooter />} />
           </Route>
         </Routes>
       </Suspense>

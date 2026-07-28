@@ -1,7 +1,7 @@
 export const infoPages = {
   about: {
     title: "About Astro Wala Shop",
-    intro: "India's marketplace for certified astrology products and live astrologer consultations.",
+    intro: "Astro Wala Shop is India's trusted destination for certified astrology products, spiritual essentials, and reliable customer support.",
     sections: [
       {
         heading: "Who we are",

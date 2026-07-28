@@ -25,6 +25,9 @@ import homepageRoutes from "./router/homepage.routes.js";
 import referralRoutes from "./router/referral.routes.js";
 import analyticsRoutes from "./router/analytics.routes.js";
 import themeRoutes from "./router/theme.routes.js";
+import contactRoutes from "./router/contact.routes.js";
+import footerRoutes from "./router/footer.routes.js";
+import aboutPageRoutes from "./router/aboutPage.routes.js";
 
 // import db from "./Database/db.js";
 
@@ -69,6 +72,9 @@ app.use("/api/v1/referral", referralRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/homepage", homepageRoutes);
 app.use("/api/v1/theme", themeRoutes);
+app.use("/api/v1/contact", contactRoutes);
+app.use("/api/v1/footer", footerRoutes);
+app.use("/api/v1/about-page", aboutPageRoutes);
 
 app.use((err, req, res, next) => {
 	if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

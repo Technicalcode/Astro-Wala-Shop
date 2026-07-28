@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Tag, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Tag, Search, RotateCcw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts, selectAllProducts } from "../../store/productsSlice";
 import { fetchCategories, selectCategories } from "../../store/categoriesSlice";
@@ -56,6 +56,18 @@ const formatCustomer = (coupon) => coupon.customerEmail || "All customers";
 
 const PAGE_SIZE = 10;
 
+const toInputDate = (date) => date.toISOString().slice(0, 10);
+
+const getDefaultCouponDates = () => {
+  const start = new Date();
+  const expire = new Date(start);
+  expire.setDate(expire.getDate() + 30);
+  return {
+    startDate: toInputDate(start),
+    expireDate: toInputDate(expire),
+  };
+};
+
 export default function AdminCoupons() {
   const dispatch = useDispatch();
   const products = useSelector(selectAllProducts);
@@ -68,6 +80,10 @@ export default function AdminCoupons() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
+  const [bulkDiscount, setBulkDiscount] = useState({
+    discountType: "percentage",
+    discountValue: "",
+  });
   const [currentPage, setCurrentPage] = useState(() => {
     return parseInt(sessionStorage.getItem('adminCouponsPage')) || 1;
   });
@@ -249,6 +265,81 @@ export default function AdminCoupons() {
     setPendingDeletes([]);
   };
 
+  const applyBulkDiscountReset = () => {
+    const discountValue = Number(bulkDiscount.discountValue);
+    if (!Number.isFinite(discountValue) || discountValue <= 0) {
+      alert("Please enter a valid discount value.");
+      return;
+    }
+    if (bulkDiscount.discountType === "percentage" && discountValue > 100) {
+      alert("Percentage discount cannot be greater than 100.");
+      return;
+    }
+
+    const discountText =
+      bulkDiscount.discountType === "percentage"
+        ? `${discountValue}%`
+        : `Rs ${discountValue.toLocaleString("en-IN")}`;
+    const confirmed = confirm(
+      `Reset all coupons to ${discountText} for All Products?\n\nEvery coupon will become usable once per user. These changes will be staged first; click Save Changes to make them live.`,
+    );
+    if (!confirmed) return;
+
+    const defaultDates = getDefaultCouponDates();
+    const resetPatch = {
+      targetType: "all",
+      category_id: undefined,
+      product_id: undefined,
+      customerEmail: "",
+      discountType: bulkDiscount.discountType,
+      discountValue,
+      maxLimit: 1,
+      minPurchaseAmount: 0,
+      isActive: true,
+    };
+
+    if (stagedCoupons.length === 0) {
+      setPendingCreates((current) => [
+        {
+          ...emptyForm,
+          ...defaultDates,
+          ...resetPatch,
+          couponId: `NEW-${Date.now().toString().slice(-4)}`,
+          id: `temp-coupon-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+        },
+        ...current,
+      ]);
+      return;
+    }
+
+    setPendingCreates((current) =>
+      current.map((coupon) => ({
+        ...coupon,
+        ...resetPatch,
+        startDate: coupon.startDate || defaultDates.startDate,
+        expireDate: coupon.expireDate || defaultDates.expireDate,
+      })),
+    );
+
+    setPendingUpdates((current) => {
+      const next = { ...current };
+      coupons
+        .filter((coupon) => !pendingDeleteIds.has(coupon.id))
+        .forEach((coupon) => {
+          next[coupon.id] = {
+            ...coupon,
+            ...(current[coupon.id] || {}),
+            ...resetPatch,
+            startDate: toDateInput((current[coupon.id] || coupon).startDate) || defaultDates.startDate,
+            expireDate: toDateInput((current[coupon.id] || coupon).expireDate) || defaultDates.expireDate,
+          };
+        });
+      return next;
+    });
+    setCurrentPage(1);
+  };
+
   const saveAllCouponChanges = async () => {
     if (pendingChangesCount === 0) return;
 
@@ -400,7 +491,7 @@ export default function AdminCoupons() {
       <Editable as="div" kind="button" id="admin-coupons-table-card" label="Coupons Table Card Background" className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-0">
         
         {/* Toolbar */}
-        <div className="p-5 border-b border-gray-100 bg-white/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="p-5 border-b border-gray-100 bg-white/50 flex flex-col xl:flex-row gap-4 justify-between items-center">
           <div className="relative group w-full sm:w-72">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none transition-colors group-focus-within:text-brand">
               <Search size={18} className="text-gray-400 group-focus-within:text-brand transition-colors" />
@@ -415,6 +506,34 @@ export default function AdminCoupons() {
               }}
               className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand block w-full pl-10 p-2.5 transition-all outline-none shadow-sm hover:border-gray-300"
             />
+          </div>
+          <div className="flex w-full flex-col gap-2 sm:flex-row xl:w-auto xl:items-center">
+            <select
+              value={bulkDiscount.discountType}
+              onChange={(e) => setBulkDiscount((current) => ({ ...current, discountType: e.target.value }))}
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 shadow-sm outline-none transition-all hover:border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 sm:w-44"
+              aria-label="Bulk discount type"
+            >
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount (Rs)</option>
+            </select>
+            <input
+              type="number"
+              min="1"
+              max={bulkDiscount.discountType === "percentage" ? "100" : undefined}
+              value={bulkDiscount.discountValue}
+              onChange={(e) => setBulkDiscount((current) => ({ ...current, discountValue: e.target.value }))}
+              placeholder={bulkDiscount.discountType === "percentage" ? "Discount %" : "Discount Rs"}
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 shadow-sm outline-none transition-all hover:border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 sm:w-40"
+              aria-label="Bulk discount value"
+            />
+            <button
+              type="button"
+              onClick={applyBulkDiscountReset}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-800 shadow-sm transition-all hover:bg-amber-100 sm:w-auto"
+            >
+              <RotateCcw size={16} /> Reset Discount
+            </button>
           </div>
         </div>
 

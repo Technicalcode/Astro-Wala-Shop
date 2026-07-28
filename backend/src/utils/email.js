@@ -16,7 +16,7 @@ export const SendEmail = async (email, token) => {
       },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password.html?token=${token}`;
 
     await transporter.sendMail({
       from: `"Astro Wala Shop" <${process.env.EMAIL}>`,

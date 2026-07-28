@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import CouponModel from "../Model/coupon.model.js";
+import OrderModel from "../Model/order.model.js";
 import ProductModel from "../Model/product.model.js";
 import CategoryModel from "../Model/Category.model.js";
 import UserModel from "../Model/User.model.js";
@@ -77,7 +78,9 @@ const serializeCoupon = (coupon) => {
     expireDate: source.expireDate,
     maxLimit: source.maxLimit,
     minPurchaseAmount: Number(source.minPurchaseAmount) || 0,
-    usage: Array.isArray(source.usedBy) ? source.usedBy.length : source.usage || 0,
+    usage: Array.isArray(source.usedBy)
+      ? source.usedBy.reduce((total, entry) => total + Number(entry.count || 0), 0)
+      : source.usage || 0,
     isActive: source.isActive,
     createdAt: source.createdAt,
     updatedAt: source.updatedAt,
@@ -357,9 +360,16 @@ export const GetAvailableCoupons = async (req, res) => {
       .sort({ expireDate: 1 })
       .lean();
 
+    const usedCouponIds = await OrderModel.distinct("coupon", {
+      user: req.user.id,
+      coupon: { $ne: null },
+      paymentStatus: { $ne: "Failed" },
+    });
+    const usedCouponIdSet = new Set(usedCouponIds.map((couponId) => String(couponId).toUpperCase()));
+
     const availableCoupons = coupons.filter((coupon) => {
       const usage = coupon.usedBy.find((entry) => String(entry.user) === String(req.user.id));
-      return Number(usage?.count || 0) < Number(coupon.maxLimit);
+      return Number(usage?.count || 0) < 1 && !usedCouponIdSet.has(String(coupon.couponId).toUpperCase());
     });
 
     return res.status(200).json({

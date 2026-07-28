@@ -51,6 +51,43 @@ const getDeliveryRange = (pincode) => {
 const toBoolean = (value) =>
   value === true || value === "true" || value === "1" || value === 1;
 
+const normalizeProductStyles = (value) => {
+  let styles = value;
+  if (typeof value === "string") {
+    try {
+      styles = JSON.parse(value);
+    } catch {
+      styles = {};
+    }
+  }
+
+  const validFontFamilies = ["default", "serif", "sans", "mono"];
+  const validWeights = ["normal", "medium", "semibold", "bold"];
+  const validStyles = ["normal", "italic"];
+  const clamp = (input, fallback, max = 96) => {
+    const number = Number(input);
+    if (Number.isNaN(number)) return fallback;
+    return Math.min(max, Math.max(1, number));
+  };
+  const normalizeBlock = (block = {}, fallback = {}) => ({
+    fontFamily: validFontFamilies.includes(block.fontFamily) ? block.fontFamily : fallback.fontFamily,
+    fontSize: clamp(block.fontSize, fallback.fontSize, fallback.maxSize),
+    fontWeight: validWeights.includes(block.fontWeight) ? block.fontWeight : fallback.fontWeight,
+    fontStyle: validStyles.includes(block.fontStyle) ? block.fontStyle : fallback.fontStyle,
+    textColor: /^#[0-9a-f]{6}$/i.test(String(block.textColor || ""))
+      ? block.textColor
+      : fallback.textColor,
+  });
+
+  return {
+    name: normalizeBlock(styles?.name, { fontFamily: "default", fontSize: 14, maxSize: 96, fontWeight: "normal", fontStyle: "normal", textColor: "#1F2937" }),
+    brand: normalizeBlock(styles?.brand, { fontFamily: "default", fontSize: 12, maxSize: 64, fontWeight: "normal", fontStyle: "normal", textColor: "#6B7280" }),
+    price: normalizeBlock(styles?.price, { fontFamily: "default", fontSize: 18, maxSize: 96, fontWeight: "bold", fontStyle: "normal", textColor: "#111827" }),
+    highlights: normalizeBlock(styles?.highlights, { fontFamily: "default", fontSize: 14, maxSize: 64, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" }),
+    description: normalizeBlock(styles?.description, { fontFamily: "default", fontSize: 14, maxSize: 64, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" }),
+  };
+};
+
 const attachReviewSummary = async (products) => {
   const productList = Array.isArray(products) ? products : [products];
   const ids = productList
@@ -116,6 +153,7 @@ export const CreateProduct = async (req, res) => {
       stock,
       producthightlight,
       bestseller,
+      styles,
     } = req.body;
 
     const missingFields = [];
@@ -162,6 +200,7 @@ export const CreateProduct = async (req, res) => {
       size,
       brand,
       producthightlight,
+      styles: normalizeProductStyles(styles),
       stock: Number(stock),
       bestseller: toBoolean(bestseller),
 
@@ -348,6 +387,7 @@ export const UpdateProduct = async (req, res) => {
       stock,
       producthightlight,
       bestseller,
+      styles,
     } = req.body;
 
     console.log(req.body);
@@ -379,6 +419,7 @@ export const UpdateProduct = async (req, res) => {
     if (size !== undefined) product.size = size;
     if (brand !== undefined) product.brand = brand;
     if (producthightlight !== undefined) product.producthightlight = producthightlight;
+    if (styles !== undefined) product.styles = normalizeProductStyles(styles);
     if (description !== undefined) product.description = description;
     if (price !== undefined && price !== "") product.price = Number(price);
     if (mrp !== undefined && mrp !== "") product.mrp = Number(mrp);

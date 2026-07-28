@@ -13,6 +13,62 @@ const toNumber = (value, fallback = 0) => {
   return Number.isNaN(number) ? fallback : number;
 };
 
+const clamp = (value, fallback, max) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.min(Math.max(numeric, 1), max);
+};
+
+const validFontFamilies = ["default", "serif", "sans", "mono"];
+const validWeights = ["normal", "medium", "semibold", "bold"];
+const validStyles = ["normal", "italic"];
+
+const normalizeBannerStyles = (value, colors = {}) => {
+  let styles = value;
+  if (typeof value === "string") {
+    try {
+      styles = JSON.parse(value);
+    } catch (_) {
+      styles = {};
+    }
+  }
+
+  const normalizeBlock = (block = {}, fallback) => ({
+    fontFamily: validFontFamilies.includes(block.fontFamily) ? block.fontFamily : fallback.fontFamily,
+    fontSize: clamp(block.fontSize, fallback.fontSize, fallback.maxSize),
+    fontWeight: validWeights.includes(block.fontWeight) ? block.fontWeight : fallback.fontWeight,
+    fontStyle: validStyles.includes(block.fontStyle) ? block.fontStyle : fallback.fontStyle,
+    textColor: block.textColor || fallback.textColor,
+  });
+
+  return {
+    title: normalizeBlock(styles?.title, {
+      fontFamily: "default",
+      fontSize: 36,
+      maxSize: 96,
+      fontWeight: "bold",
+      fontStyle: "normal",
+      textColor: colors.titleColor || "#ffffff",
+    }),
+    subtitle: normalizeBlock(styles?.subtitle, {
+      fontFamily: "default",
+      fontSize: 16,
+      maxSize: 64,
+      fontWeight: "normal",
+      fontStyle: "normal",
+      textColor: colors.subtitleColor || "#f3f4f6",
+    }),
+    cta: normalizeBlock(styles?.cta, {
+      fontFamily: "default",
+      fontSize: 16,
+      maxSize: 64,
+      fontWeight: "bold",
+      fontStyle: "normal",
+      textColor: colors.ctaText || "#000000",
+    }),
+  };
+};
+
 const saveBannerImage = async (file, title = "") => {
   const name = slugify(title || "banner");
 
@@ -53,6 +109,13 @@ const buildBannerPayload = (body = {}) => {
   }
   if (body.isActive !== undefined) {
     payload.isActive = toBoolean(body.isActive, true);
+  }
+  if (body.styles !== undefined) {
+    payload.styles = normalizeBannerStyles(body.styles, {
+      titleColor: payload.titleColor || body.titleColor,
+      subtitleColor: payload.subtitleColor || body.subtitleColor,
+      ctaText: payload.ctaText || body.ctaText,
+    });
   }
 
   return payload;

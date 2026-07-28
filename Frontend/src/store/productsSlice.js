@@ -6,6 +6,30 @@ const PLACEHOLDER = COMMON_CLOUDINARY_IMAGE_URL;
 
 const toImageUrl = (image) => toAssetUrl(image, PLACEHOLDER);
 
+export const defaultProductStyles = {
+  name: { fontFamily: "default", fontSize: 14, fontWeight: "normal", fontStyle: "normal", textColor: "#1F2937" },
+  brand: { fontFamily: "default", fontSize: 12, fontWeight: "normal", fontStyle: "normal", textColor: "#6B7280" },
+  price: { fontFamily: "default", fontSize: 18, fontWeight: "bold", fontStyle: "normal", textColor: "#111827" },
+  highlights: { fontFamily: "default", fontSize: 14, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" },
+  description: { fontFamily: "default", fontSize: 14, fontWeight: "normal", fontStyle: "normal", textColor: "#4B5563" },
+};
+
+const normalizeFontBlock = (block = {}, fallback = defaultProductStyles.name) => ({
+  fontFamily: block.fontFamily || fallback.fontFamily,
+  fontSize: Number(block.fontSize) || fallback.fontSize,
+  fontWeight: block.fontWeight || fallback.fontWeight,
+  fontStyle: block.fontStyle || fallback.fontStyle,
+  textColor: block.textColor || fallback.textColor,
+});
+
+export const normalizeProductStyles = (styles = {}) => ({
+  name: normalizeFontBlock(styles.name, defaultProductStyles.name),
+  brand: normalizeFontBlock(styles.brand, defaultProductStyles.brand),
+  price: normalizeFontBlock(styles.price, defaultProductStyles.price),
+  highlights: normalizeFontBlock(styles.highlights, defaultProductStyles.highlights),
+  description: normalizeFontBlock(styles.description, defaultProductStyles.description),
+});
+
 const normalizeToken = (value) => {
   if (typeof value !== "string") return "";
 
@@ -203,6 +227,7 @@ export const fetchProducts = createAsyncThunk(
                 image,
                 images: Array.isArray(p.images) ? p.images.map(toImageUrl) : [image],
                 description: p.description || "",
+                styles: normalizeProductStyles(p.styles),
                 highlights,
                 reviews: Array.isArray(p.reviews) ? p.reviews : [],
                 stock: Number(p.stock) || 0,
@@ -234,6 +259,7 @@ export const createProduct = createAsyncThunk(
       body.append("brand", productData.brand || "");
       body.append("stock", String(productData.stock || 100));
       body.append("bestseller", String(Boolean(productData.bestseller)));
+      body.append("styles", JSON.stringify(normalizeProductStyles(productData.styles)));
 
       const sizeValue =
         productData.variants && productData.variants[0]
@@ -287,6 +313,7 @@ export const updateProduct = createAsyncThunk(
       if (product.brand !== undefined) body.append("brand", product.brand || "");
       if (product.stock !== undefined) body.append("stock", String(product.stock));
       if (product.bestseller !== undefined) body.append("bestseller", String(Boolean(product.bestseller)));
+      body.append("styles", JSON.stringify(normalizeProductStyles(product.styles)));
 
       const sizeValue =
         product.variants && product.variants[0]

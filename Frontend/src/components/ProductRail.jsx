@@ -4,7 +4,7 @@ import { ChevronRight, ChevronsRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import Editable from "./editable/Editable";
 
-function ProductRail({ title, subtitle, products, viewAllTo, groupId }) {
+function ProductRail({ title, subtitle, products, viewAllTo, groupId, titleStyle, subtitleStyle }) {
   const scrollRef = useRef(null);
   const railGroup = groupId ? `product-frame-${groupId}` : "product-frame";
   const titleGroup = groupId ? `product-frame-title-${groupId}` : "product-frame-title";
@@ -35,11 +35,12 @@ function ProductRail({ title, subtitle, products, viewAllTo, groupId }) {
             group={titleGroup}
             label="Product Section Title"
             className="font-display font-semibold text-lg text-gray-900"
+            style={titleStyle}
           >
             {title}
           </Editable>
           {subtitle && (
-            <Editable as="p" group={paragraphGroup} label="Product Section Paragraph" className="text-xs text-gray-500">
+            <Editable as="p" group={paragraphGroup} label="Product Section Paragraph" className="text-xs text-gray-500" style={subtitleStyle}>
               {subtitle}
             </Editable>
           )}
